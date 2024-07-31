@@ -43,7 +43,7 @@ ingress:
     enabled: true
     class: traefik
     rules:
-      - hosts: '{{ .Values.shortcuts.hostname }}'
+      - host: '{{ .Values.shortcuts.hostname }}'
         http:
           paths:
             - backend:
