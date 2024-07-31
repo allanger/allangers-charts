@@ -42,8 +42,6 @@ ingress:
   main:
     enabled: true
     class: traefik
-    annotations:
-      annotation: test
     rules:
       - hosts: '{{ .Values.shortcuts.hostname }}'
         http:
@@ -86,6 +84,7 @@ env:
   main:
     enabled: true
     sensitive: false
+    remove: []
     data:
       DOMAIN: '{{ .Values.shortcuts.hostname }}'
       SMTP_HOST: ~
@@ -117,6 +116,7 @@ env:
   secrets:
     enabled: true
     sensitive: true
+    remove: []
     data:
       ADMIN_TOKEN: "R@ndomToken$tring"
       DATABASE_URL: ''
