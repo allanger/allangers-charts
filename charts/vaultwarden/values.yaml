@@ -88,13 +88,13 @@ env:
     sensitive: false
     data:
       DOMAIN: '{{ .Values.shortcuts.hostname }}'
-      SMTP_HOST: ''
+      SMTP_HOST: ~
       SMTP_SECURITY: startls
-      SMTP_PORT: '587'
+      SMTP_PORT: 587
       SMTP_AUTH_MECHANISM: Plain
       SMTP_FROM: vaultwarden@softplayer.net
       SMTP_FROM_NAME: Soft Player
-      SMTP_DEBUG: 'false'
+      SMTP_DEBUG: false
       SMTP_ACCEPT_INVALID_HOSTNAMES: 'false'
       SMTP_ACCEPT_INVALID_CERTS: 'false'
       SMTP_USERNAME: ''
