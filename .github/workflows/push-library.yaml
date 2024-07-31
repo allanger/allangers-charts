@@ -1,0 +1,29 @@
+name: Publish an oci artifact for the library
+
+on:
+  push:
+    branches:
+      - main
+env:
+  HELM_VERSION: v3.15.3
+jobs:
+  push:
+    runs-on: ubuntu-24.04
+    permissions:
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Push Helm chart to OCI compatible registry (Github)
+        run: |
+          helm registry login ghcr.io \
+            --username ${{ github.actor }} \
+            --password ${{ github.token }}
+          for chart in $(find charts -maxdepth 1 -mindepth 1 -type d); do
+            helm package $chart -d chart-packages;
+          done
+          charts=$(find chart-packages -maxdepth 1 -mindepth 1 -type f)
+          for chart in $charts; do
+            helm push $chart oci://ghcr.io/${{ github.repository }}
+          done
