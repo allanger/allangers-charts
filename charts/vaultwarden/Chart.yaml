@@ -1,0 +1,23 @@
+apiVersion: v2
+name: vaultwarden
+description: Unofficial Bitwarden compatible server written in Rust, formerly known as bitwarden_rs
+type: application
+version: 2.1.0
+appVersion: 1.31.0
+maintainers:
+  - name: allanger
+    email: allanger@zohomail.com
+    url: https://badhouseplants.net
+dependencies:
+  - name: helm-library
+    version: 0.1.1
+    repository: oci://ghcr.io/allanger/allangers-helm-library
+annotations:
+  allowed_workload_kinds: "Deployment"
+sources:
+  - https://github.com/dani-garcia/vaultwarden/tree/main
+keywords:
+  - vaultwarden
+  - bitwarden
+  - bitwarden_rs
+home: https://github.com/dani-garcia/vaultwarden/tree/main

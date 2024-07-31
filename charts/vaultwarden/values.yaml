@@ -1,0 +1,123 @@
+---
+shortcuts:
+  hostname: vaultwarden.company
+  dataFolder: /app/data
+  logFolder: /app/logs
+  rocketPort: 8080
+
+workload:
+  kind: Deployment
+  strategy:
+    type: RollingUpdate
+  containers:
+    vaultwarden:
+      image:
+        registry: registry.hub.docker.com
+        repository: vaultwarden/server
+        tag:
+        pullPolicy: Always
+      ports:
+        main: vaultwarden
+      mounts:
+        storage:
+          data:
+            path: /app/data/
+      envFrom:
+        - main
+        - secrets
+      livenessProbe:
+        exec:
+          command:
+            - sh
+            - /healthcheck.sh
+      readinessProbe:
+        exec:
+          command:
+            - sh
+            - /healthcheck.sh
+        initialDelaySeconds: 10
+        periodSeconds: 10
+
+ingress:
+  main:
+    enabled: true
+    class: traefik
+    annotations:
+      annotation: test
+    rules:
+      - hosts: '{{ .Values.shortcuts.hostname }}'
+        http:
+          paths:
+            - backend:
+                service:
+                  name: '{{ include "chart.fullname" $ }}-main'
+                  port: '{{ .Values.shortcuts.rocketPort }}'
+    tls:
+      - hosts:
+          - '{{ .Values.shortcuts.hostname }}'
+        secretName: '{{ .Values.shortcuts.hostname }}'
+
+service:
+  main:
+    enabled: true
+    type: ClusterIP
+    ports:
+      vaultwarden:
+        port: 8080
+        targetPort: 8080
+        protocol: TCP
+
+storage:
+  data:
+    enabled: true
+    storageClassName: default
+    size: 1Gi
+    accessModes:
+      - ReadWriteMany
+  logs:
+    enabled: false
+    storageClassName: default
+    size: 1G
+    accessModes:
+      - ReadWriteMany
+
+# -- Please have a look here: https://github.com/dani-garcia/vaultwarden/blob/main/.env.template
+env:
+  main:
+    enabled: true
+    sensitive: false
+    data:
+      DOMAIN: '{{ .Values.shortcuts.hostname }}'
+      SMTP_HOST: ''
+      SMTP_SECURITY: startls
+      SMTP_PORT: '587'
+      SMTP_AUTH_MECHANISM: Plain
+      SMTP_FROM: vaultwarden@softplayer.net
+      SMTP_FROM_NAME: Soft Player
+      SMTP_DEBUG: 'false'
+      SMTP_ACCEPT_INVALID_HOSTNAMES: 'false'
+      SMTP_ACCEPT_INVALID_CERTS: 'false'
+      SMTP_USERNAME: ''
+      DATA_FOLDER: /app/data/
+      ROCKET_PORT: '{{ .Values.shortcuts.rocketPort }}'
+      SHOW_PASSWORD_HINT: 'true'
+      SIGNUPS_ALLOWED: 'false'
+      INVITATIONS_ALLOWED: 'true'
+      SIGNUPS_DOMAINS_WHITELIST: "*"
+      SIGNUPS_VERIFY: 'true'
+      WEB_VAULT_ENABLED: 'true'
+      LOG_FILE: /app/logs
+      LOG_LEVEL: info
+      DB_CONNECTION_RETRIES: '10'
+      DATABASE_MAX_CONNS: '10'
+      ORG_GROUPS_ENABLED: 'true'
+      ORG_EVENTS_ENABLED: 'true'
+      ORG_CREATION_USERS: ""
+
+  secrets:
+    enabled: true
+    sensitive: true
+    data:
+      ADMIN_TOKEN: "R@ndomToken$tring"
+      DATABASE_URL: ''
+      SMTP_PASSWORD: ''
