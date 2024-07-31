@@ -50,7 +50,7 @@ ingress:
                 service:
                   name: '{{ include "chart.fullname" $ }}-main'
                   port:
-                    number: '{{ .Values.shortcuts.rocketPort }}'
+                    number: 8080
               path: /
               pathType: Prefix
     tls:
