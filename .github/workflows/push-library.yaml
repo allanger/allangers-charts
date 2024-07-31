@@ -25,6 +25,5 @@ jobs:
           done
           charts=$(find chart-packages -maxdepth 1 -mindepth 1 -type f)
           for chart in $charts; do
-            # Extend it to dynamic names creating later
-            helm push $chart oci://ghcr.io/${{ github.repository }}/vaultwarden-debug
+            helm push $chart oci://ghcr.io/${{ github.repository }}
           done
