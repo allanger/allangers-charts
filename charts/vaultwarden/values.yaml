@@ -22,6 +22,9 @@ workload:
         storage:
           data:
             path: /app/data/
+        extraVolumes:
+          logs:
+            path: /app/logs
       envFrom:
         - main
         - secrets
@@ -57,7 +60,9 @@ ingress:
       - hosts:
           - '{{ .Values.shortcuts.hostname }}'
         secretName: '{{ .Values.shortcuts.hostname }}'
-
+extraVolumes:
+  logs: 
+    emptyDir: {}
 service:
   main:
     enabled: true
