@@ -49,7 +49,10 @@ ingress:
             - backend:
                 service:
                   name: '{{ include "chart.fullname" $ }}-main'
-                  port: '{{ .Values.shortcuts.rocketPort }}'
+                  port:
+                    number: '{{ atoi .Values.shortcuts.rocketPort }}'
+              path: /
+              pathType: Prefix
     tls:
       - hosts:
           - '{{ .Values.shortcuts.hostname }}'
