@@ -72,8 +72,8 @@ service:
     type: ClusterIP
     ports:
       smtp:
-        port: 23
-        targetPort: 23
+        port: 25
+        targetPort: 25
         protocol: TCP
   submission:
     enabled: true
