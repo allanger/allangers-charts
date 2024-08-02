@@ -48,7 +48,7 @@ ingress:
           paths:
             - backend:
                 service:
-                  name: '{{ include "chart.fullname" $ }}-main'
+                  name: '{{ include "chart.fullname" $ }}-https'
                   port:
                     number: 443
               path: /
