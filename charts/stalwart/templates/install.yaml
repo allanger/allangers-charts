@@ -1,0 +1,6 @@
+{{ include "lib.component.workload" . }}
+{{ include "lib.component.service" . }}
+{{ include "lib.component.ingress" . }}
+{{ include "lib.component.env" . }}
+{{ include "lib.component.files" . }}
+{{ include "lib.component.storage" . }}

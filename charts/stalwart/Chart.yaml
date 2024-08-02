@@ -1,0 +1,22 @@
+apiVersion: v2
+name: stalwart
+description: Secure & Modern All-in-One Mail Server (IMAP, JMAP, POP3, SMTP)
+type: application
+version: 0.1.0
+appVersion: v0.9.0
+maintainers:
+  - name: allanger
+    email: allanger@zohomail.com
+    url: https://badhouseplants.net
+dependencies:
+  - name: helm-library
+    version: 0.1.2
+    repository: oci://ghcr.io/allanger/allangers-helm-library
+annotations:
+  allowed_workload_kinds: "Deployment"
+sources:
+  - https://github.com/stalwartlabs/mail-server
+keywords:
+  - stalwart
+  - email
+home: https://stalw.art/

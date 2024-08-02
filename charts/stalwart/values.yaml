@@ -1,0 +1,212 @@
+---
+shortcuts:
+  hostname: stalwart.company
+
+workload:
+  kind: Deployment
+  strategy:
+    type: RollingUpdate
+  containers:
+    stalwart:
+      image:
+        registry: registry.hub.docker.com
+        repository: stalwartlabs/mail-server
+        tag:
+        pullPolicy: Always
+      ports:
+        https: https
+        smtp: smtp
+        submission: submission
+        imap: imap
+        imaptls: imaptls
+        pop3: pop3
+        pop3s: pop3s
+        sieve: sieve
+      mounts:
+        storage:
+          data:
+            path: /opt/stalwart-mail
+      livenessProbe:
+        tcpSocket:
+          port: 25
+        initialDelaySeconds: 3
+        periodSeconds: 3
+      readinessProbe:
+        tcpSocket:
+          port: 25
+        initialDelaySeconds: 3
+        periodSeconds: 3
+
+ingress:
+  main:
+    enabled: true
+    annotations: {}
+    class: traefik
+    rules:
+      - host: '{{ .Values.shortcuts.hostname }}'
+        http:
+          paths:
+            - backend:
+                service:
+                  name: '{{ include "chart.fullname" $ }}-main'
+                  port:
+                    number: 443
+              path: /
+              pathType: Prefix
+    tls:
+      - hosts:
+          - '{{ .Values.shortcuts.hostname }}'
+        secretName: '{{ .Values.shortcuts.hostname }}'
+
+service:
+  https:
+    enabled: true
+    type: ClusterIP
+    ports:
+      https:
+        port: 443
+        targetPort: 443
+        protocol: TCP
+  smtp:
+    enabled: true
+    type: ClusterIP
+    ports:
+      smtp:
+        port: 23
+        targetPort: 23
+        protocol: TCP
+  submission:
+    enabled: true
+    type: ClusterIP
+    ports:
+      submission:
+        port: 587
+        targetPort: 587
+        protocol: TCP
+  imap:
+    enabled: true
+    type: ClusterIP
+    ports:
+      imap:
+        port: 143
+        targetPort: 143
+        protocol: TCP
+  imaptls:
+    enabled: true
+    type: ClusterIP
+    ports:
+      imaptls:
+        port: 993
+        targetPort: 993
+        protocol: TCP
+  pop3:
+    enabled: true
+    type: ClusterIP
+    ports:
+      pop3:
+        port: 110
+        targetPort: 110
+        protocol: TCP
+  pop3s:
+    enabled: true
+    type: ClusterIP
+    ports:
+      pop3s:
+        port: 995
+        targetPort: 995
+        protocol: TCP
+  sieve:
+    enabled: true
+    type: ClusterIP
+    ports:
+      sieve:
+        port: 4190
+        targetPort: 4190
+        protocol: TCP
+storage:
+  data:
+    enabled: true
+    storageClassName: default
+    size: 1Gi
+    accessModes:
+      - ReadWriteMany
+
+# -- Not used yet
+files:
+  config:
+    enabled: false
+    sensitive: false
+    remove: []
+    entries:
+      # Ref: https://github.com/stalwartlabs/mail-server/blob/main/resources/config/config.toml
+      config.toml:
+        data: |
+          [server.listener."smtp"]
+          bind = ["[::]:25"]
+          protocol = "smtp"
+          
+          [server.listener."submission"]
+          bind = ["[::]:587"]
+          protocol = "smtp"
+          
+          [server.listener."submissions"]
+          bind = ["[::]:465"]
+          protocol = "smtp"
+          tls.implicit = true
+          
+          [server.listener."imap"]
+          bind = ["[::]:143"]
+          protocol = "imap"
+          
+          [server.listener."imaptls"]
+          bind = ["[::]:993"]
+          protocol = "imap"
+          tls.implicit = true
+          
+          [server.listener.pop3]
+          bind = "[::]:110"
+          protocol = "pop3"
+          
+          [server.listener.pop3s]
+          bind = "[::]:995"
+          protocol = "pop3"
+          tls.implicit = true
+          
+          [server.listener."sieve"]
+          bind = ["[::]:4190"]
+          protocol = "managesieve"
+          
+          [server.listener."https"]
+          protocol = "http"
+          bind = ["[::]:443"]
+          tls.implicit = false
+          
+          [storage]
+          data = "rocksdb"
+          fts = "rocksdb"
+          blob = "rocksdb"
+          lookup = "rocksdb"
+          directory = "internal"
+          
+          [store."rocksdb"]
+          type = "rocksdb"
+          path = "/app/data/data/"
+          compression = "lz4"
+          
+          [directory."internal"]
+          type = "internal"
+          store = "rocksdb"
+          
+          [tracer."stdout"]
+          type = "stdout"
+          level = "info"
+          ansi = false
+          enable = true
+          
+          #[server.run-as]
+          #user = "stalwart-mail"
+          #group = "stalwart-mail"
+          
+          [authentication.fallback-admin]
+          user = "admin"
+          secret = 'R@ndomToken$tring'
