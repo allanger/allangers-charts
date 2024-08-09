@@ -58,7 +58,7 @@ ingress:
                 service:
                   name: '{{ include "chart.fullname" $ }}-http'
                   port:
-                    number: 443
+                    number: 8080
               path: /
               pathType: Prefix
     tls:
