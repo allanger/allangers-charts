@@ -15,6 +15,7 @@ workload:
         pullPolicy: Always
       ports:
         https: https
+        http: http
         smtp: smtp
         submission: submission
         imap: imap
@@ -22,10 +23,17 @@ workload:
         pop3: pop3
         pop3s: pop3s
         sieve: sieve
+      args:
+        - --config
+        - /app/config.toml
       mounts:
         storage:
           data:
             path: /opt/stalwart-mail
+        files:
+          config:
+            path: /app/config.toml
+            subPath: config.toml
       livenessProbe:
         tcpSocket:
           port: 25
@@ -48,7 +56,7 @@ ingress:
           paths:
             - backend:
                 service:
-                  name: '{{ include "chart.fullname" $ }}-https'
+                  name: '{{ include "chart.fullname" $ }}-http'
                   port:
                     number: 443
               path: /
@@ -66,6 +74,14 @@ service:
       https:
         port: 443
         targetPort: 443
+        protocol: TCP
+  http:
+    enabled: true
+    type: ClusterIP
+    ports:
+      https:
+        port: 8080
+        targetPort: 8080
         protocol: TCP
   smtp:
     enabled: true
@@ -210,3 +226,11 @@ files:
           [authentication.fallback-admin]
           user = "admin"
           secret = 'R@ndomToken$tring'
+          # SSL/TLS Certificate from a local file
+          #[certificate."default"]
+          #cert = "%{file:/app/certs/}%"
+
+          # Dynamic hostname using another configuration setting
+          [lookup.default]
+          domain = "badhouseplants.net"
+          hostname = "stalwart.%{cfg:lookup.default.domain}%"
