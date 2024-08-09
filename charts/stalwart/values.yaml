@@ -79,7 +79,7 @@ service:
     enabled: true
     type: ClusterIP
     ports:
-      https:
+      http:
         port: 8080
         targetPort: 8080
         protocol: TCP
