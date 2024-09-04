@@ -21,10 +21,12 @@ workload:
 
 env:
   environment:
+    enabled: true
     sensitive: false
     data:
       METHOD: chacha20-ietf-poly1305
   secrets:
+    enabled: true
     sensitive: true
     data:
       # -- Provide a password that will be used to connect to shadowsocks
