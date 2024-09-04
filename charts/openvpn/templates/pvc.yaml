@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "openvpn-chart.fullname" . }}
+  labels:
+    {{- include "openvpn-chart.labels" . | nindent 4 }}
+spec:
+  {{- if .Values.storage.class }}
+  {{- if (eq "-" .Values.storage.class) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.storage.class }}"
+  {{- end }}
+  {{- end }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.storage.size }}

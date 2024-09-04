@@ -1,0 +1,200 @@
+
+{{- $version := semver .Capabilities.KubeVersion.Version }}
+{{- if .Values.tests.enabled }}
+# ---------------------------------------------------------------------
+# -- Test that CRDs are installed
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openvpn-chart.fullname" . }}-test-script
+  labels:
+    {{- include "openvpn-chart.selectorLabels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    {{- if .Values.tests.cleanup }}
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    {{- end }}
+    "helm.sh/hook-weight": "6"
+data:
+  get_config.sh: |-
+    #!/bin/bash
+    kubectl rollout status deployment/{{ include "openvpn-chart.fullname" . }}
+    kubectl exec deployment/{{ include "openvpn-chart.fullname" . }} -- ovpn_genclientcert test nopass
+    kubectl exec deployment/{{ include "openvpn-chart.fullname" . }} -- ovpn_getclient test > /data/test.ovpn
+  test_connection.sh : |-
+    sed -i "s/127.0.0.1/{{ include "openvpn-chart.fullname" . }}/g" /data/test.ovpn
+    mkdir -p /dev/net
+    mknod /dev/net/tun c 10 200
+    chmod 600 /dev/net/tun
+    openvpn --config /data/test.ovpn --daemon --log-append /tmp/ovpnlog
+    tail -n0 -f /tmp/ovpnlog | sed '/Initialization Sequence Completed/ q'
+    
+--- 
+# ---------------------------------------------------------------------
+# -- Prepare roles and bindings to access k8s resources from the test
+# ---------------------------------------------------------------------
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "openvpn-chart.fullname" . }}-test-role
+  labels:
+    {{- include "openvpn-chart.selectorLabels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    {{- if .Values.tests.cleanup }}
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    {{- end }}
+    "helm.sh/hook-weight": "1"
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "openvpn-chart.fullname" . }}-gsql-dbin-sa
+  labels:
+    {{- include "openvpn-chart.selectorLabels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    {{- if .Values.tests.cleanup }}
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    {{- end }}
+    "helm.sh/hook-weight": "1"
+automountServiceAccountToken: true
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "openvpn-chart.fullname" . }}-gsql-dbin-rb
+  labels:
+    {{- include "openvpn-chart.selectorLabels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    {{- if .Values.tests.cleanup }}
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    {{- end }}
+    "helm.sh/hook-weight": "1"
+subjects:
+- kind: ServiceAccount
+  name: {{ include "openvpn-chart.fullname" . }}-gsql-dbin-sa
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ include "openvpn-chart.fullname" . }}-test-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "openvpn-chart.fullname" . }}-test
+  annotations:
+    "helm.sh/hook": test
+    {{- if .Values.tests.cleanup }}
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    {{- end }}
+    "helm.sh/hook-weight": "7"
+  labels:
+    {{- include "openvpn-chart.labels" . | nindent 4 }}
+spec:
+  storageClassName: {{ .Values.storage.class }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 512Mi
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "openvpn-chart.fullname" . }}-test
+  labels:
+    {{- include "openvpn-chart.selectorLabels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    {{- if .Values.tests.cleanup }}
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    {{- end }}
+    "helm.sh/hook-weight": "7"
+spec:
+  serviceAccountName: {{ include "openvpn-chart.fullname" . }}-gsql-dbin-sa
+  automountServiceAccountToken: true
+  volumes:
+    - name: test-script
+      configMap:
+        name: {{ include "openvpn-chart.fullname" . }}-test-script
+    - name: data
+      persistentVolumeClaim:
+        claimName: {{ include "openvpn-chart.fullname" . }}-test
+  containers:
+    - name: tester
+      image: alpine/k8s:{{ $version.Major }}.{{ $version.Minor }}.{{ $version.Patch }}
+      volumeMounts:
+        - name: test-script
+          readOnly: true
+          mountPath: /get_config.sh
+          subPath: get_config.sh
+        - name: data
+          readOnly: false
+          mountPath: /data
+      command: 
+        - bash
+      args:
+        - -e
+        - /get_config.sh
+  restartPolicy: Never
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "openvpn-chart.fullname" . }}-test-connection
+  labels:
+    {{- include "openvpn-chart.selectorLabels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    {{- if .Values.tests.cleanup }}
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    {{- end }}
+    "helm.sh/hook-weight": "7"
+spec:
+  serviceAccountName: {{ include "openvpn-chart.fullname" . }}-gsql-dbin-sa
+  automountServiceAccountToken: true
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: {{ include "openvpn-chart.fullname" . }}-test
+    - name: test-script
+      configMap:
+        name: {{ include "openvpn-chart.fullname" . }}-test-script
+  containers:
+    - name: tester
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+      imagePullPolicy: {{ .Values.image.pullPolicy }}
+      volumeMounts:
+        - name: data
+          readOnly: false
+          mountPath: /data
+        - name: test-script
+          readOnly: true
+          mountPath: /test_connection.sh
+          subPath: test_connection.sh
+      command: 
+        - bash
+      args:
+        - -e
+        - /test_connection.sh
+      securityContext:
+        capabilities:
+          add:
+            - NET_ADMIN
+
+  restartPolicy: Never
+
+{{- end }}

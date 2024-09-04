@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openvpn-chart.fullname" . }}-pki-scripts
+  labels:
+    {{- include "openvpn-chart.labels" . | nindent 4 }}
+data:
+  init_pki.sh: |
+    if [ ! -d /etc/openvpn/pki ]; then
+      source "$OPENVPN/ovpn_env.sh"
+      OVPN_DIR=/etc/openvpn
+      PKI_DIR=$OVPN_DIR/pki
+      cd $OVPN_DIR
+      export EASYRSA_BATCH=yes
+      unset EASYRSA_VARS_FILE
+      /usr/share/easy-rsa/easyrsa init-pki
+      /usr/share/easy-rsa/easyrsa build-ca nopass
+      /usr/share/easy-rsa/easyrsa build-server-full {{ .Values.openvpn.host }} nopass
+      /usr/share/easy-rsa/easyrsa gen-dh
+      cd $PKI_DIR
+      openvpn --genkey tls-crypt-v2-server private/{{ .Values.openvpn.host }}.pem
+      openvpn --genkey secret > ta.key
+    fi
+  gen_client.sh: |
+    source "$OPENVPN/ovpn_env.sh"
+    CLIENTNAME=$1
+    PASSWORD=$2
+    OVPN_DIR=/etc/openvpn
+    cd $OVPN_DIR
+    /usr/share/easy-rsa/easyrsa build-client-full $CLIENTNAME $PASSWORD
