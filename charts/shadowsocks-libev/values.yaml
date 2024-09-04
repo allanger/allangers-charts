@@ -1,0 +1,41 @@
+---
+workload:
+  kind: Deployment
+  containers:
+    shadowsocks:
+      image:
+        registry: docker.io
+        repository: shadowsocks/shadowsocks-libev
+        tag: v3.3.5
+        pullPolicy: Always
+      # -- Required to allow ipv4 forwarding
+      securityContext:
+        capabilities:
+          add:
+            - NET_ADMIN
+      ports:
+        shadowsocks: shadowsocks
+      envFrom:
+        - environemnt
+        - secrets
+
+env:
+  environment:
+    sensitive: false
+    data:
+      METHOD: chacha20-ietf-poly1305
+  secrets:
+    sensitive: true
+    data:
+      # -- Provide a password that will be used to connect to shadowsocks
+      PASSWORD: test12345
+
+service:
+  shadowsocks:
+    enabled: true
+    type: ClusterIP
+    ports:
+      shadowsocks:
+        port: 8388
+        targetPort: 8388
+        protocol: TCP
