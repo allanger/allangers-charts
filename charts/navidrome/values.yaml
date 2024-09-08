@@ -1,0 +1,139 @@
+---
+shortcuts:
+  hostname: navidrome.company
+workload:
+  kind: Deployment
+  strategy:
+    type: RollingUpdate
+  containers:
+    navidrome:
+      image:
+        registry: registry.hub.docker.com
+        repository: deluan/navidrome
+        tag:
+        pullPolicy: Always
+      ports:
+        navidrome: navidrome
+      envFrom:
+        - main
+      mounts:
+        storage:
+          data:
+            path: /app/data
+          music: 
+            path: /app/music
+      livenessProbe:
+        httpGet:
+          path: /
+          port: 4533
+        initialDelaySeconds: 3
+        periodSeconds: 3
+      readinessProbe:
+        httpGet:
+          path: /
+          port: 4533
+        initialDelaySeconds: 3
+        periodSeconds: 3
+  initContainers:
+    rclone:
+      image:
+        registry: registry.hub.docker.com
+        repository: rclone/rclone
+        tag: 1.67
+        pullPolicy: Always
+      mounts:
+        storage:
+          music: 
+            path: /app/music
+        files:
+          rclone-config:
+            path: /app/rclone.conf
+            subPath: rclone.conf
+          rclone-script:
+            path: /app/clone.sh
+            subPath: rclone-script
+      command: 
+        - sh
+      args:
+        - /app/clone.sh
+ingress:
+  main:
+    enabled: true
+    annotations: {}
+    class: traefik
+    rules:
+      - host: '{{ .Values.shortcuts.hostname }}'
+        http:
+          paths:
+            - backend:
+                service:
+                  name: '{{ include "chart.fullname" $ }}-navidrome'
+                  port:
+                    number: 4533
+              path: /
+              pathType: Prefix
+    tls:
+      - hosts:
+          - '{{ .Values.shortcuts.hostname }}'
+        secretName: '{{ .Values.shortcuts.hostname }}'
+
+service:
+  navidrome:
+    enabled: true
+    type: ClusterIP
+    ports:
+      navidrome:
+        port: 4533
+        targetPort: 4533
+        protocol: TCP
+storage:
+  data:
+    enabled: true
+    storageClassName: default
+    size: 1Gi
+    accessModes:
+      - ReadWriteMany
+  music:
+    enabled: true
+    storageClassName: default
+    size: 1Gi
+    accessModes:
+      - ReadWriteMany
+
+
+env:
+  main:
+    enabled: true
+    sensitive: false
+    remove: []
+    data:
+      ND_MUSICFOLDER: /app/music
+      ND_DATAFOLDER: /app/data
+      ND_LOGLEVEL: info      
+      ND_BASEURL: 'https://{{ .Values.shortcuts.hostname }}'
+
+files:
+  rclone-config:
+    enabled: true
+    sensitive: false
+    remove: []
+    entries:
+      rclone.conf:
+        data: |
+          [music-data]
+          type = s3
+          provider = Minio
+          endpoint = s3.company
+          location_constraint = us-west-1
+  rclone-script:
+    enabled: true
+    sensitive: false
+    remove: []
+    entries:
+      rclone-script:
+        data: |
+          #!/usr/bin/sh
+          while true; do 
+            rclone --config /app/rclone.conf sync -P music-data:/navidrome /app/music
+            sleep 10
+          done
