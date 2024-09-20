@@ -16,7 +16,7 @@ workload:
       ports:
         shadowsocks: shadowsocks
       envFrom:
-        - environemnt
+        - environment
         - secrets
 
 env:
