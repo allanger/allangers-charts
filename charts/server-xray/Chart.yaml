@@ -1,0 +1,23 @@
+apiVersion: v2
+name: server-xray
+description: Xray, Penetrates Everything. Also the best v2ray-core, with XTLS support. Fully compatible configuration. 
+type: application
+version: 0.1.0
+appVersion: 24.9.19
+maintainers:
+  - name: allanger
+    email: allanger@zohomail.com
+    url: https://badhouseplants.net
+dependencies:
+  - name: helm-library
+    version: 0.1.3
+    repository: oci://ghcr.io/allanger/allangers-helm-library
+annotations:
+  allowed_workload_kinds: "Deployment"
+sources:
+  - https://github.com/XTLS/Xray-core
+keywords:
+  - xray
+  - vpn
+  - proxy
+home: https://xtls.github.io/en/
