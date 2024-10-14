@@ -37,6 +37,7 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 storage:
+  annotations: {}
   class: ""
   size: 1Gi
 serviceAccount:

@@ -3,7 +3,7 @@ apiVersion: v2
 name: openvpn
 description: A Helm chart for deploying OpenVPN
 type: application
-version: 0.0.1
+version: 0.0.2
 appVersion: v2.6.5
 
 sources:
