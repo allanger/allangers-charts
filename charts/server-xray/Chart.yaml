@@ -2,8 +2,8 @@ apiVersion: v2
 name: server-xray
 description: Xray, Penetrates Everything. Also the best v2ray-core, with XTLS support. Fully compatible configuration. 
 type: application
-version: 0.2.0
-appVersion: 24.9.30
+version: 0.3.0
+appVersion: 24.30.31
 maintainers:
   - name: allanger
     email: allanger@zohomail.com
