@@ -5,41 +5,42 @@ shortcuts:
   logFolder: /app/logs
   rocketPort: 8080
 
-workload:
-  kind: Deployment
-  strategy:
-    type: RollingUpdate
-  containers:
-    vaultwarden:
-      image:
-        registry: registry.hub.docker.com
-        repository: vaultwarden/server
-        tag:
-        pullPolicy: Always
-      ports:
-        main: vaultwarden
-      mounts:
-        storage:
-          data:
-            path: /app/data/
-        extraVolumes:
-          logs:
-            path: /app/logs
-      envFrom:
-        - main
-        - secrets
-      livenessProbe:
-        exec:
-          command:
-            - sh
-            - /healthcheck.sh
-      readinessProbe:
-        exec:
-          command:
-            - sh
-            - /healthcheck.sh
-        initialDelaySeconds: 10
-        periodSeconds: 10
+base:
+  workload:
+    kind: Deployment
+    strategy:
+      type: RollingUpdate
+    containers:
+      vaultwarden:
+        image:
+          registry: registry.hub.docker.com
+          repository: vaultwarden/server
+          tag:
+          pullPolicy: Always
+        ports:
+          main: vaultwarden
+        mounts:
+          storage:
+            data:
+              path: /app/data/
+          extraVolumes:
+            logs:
+              path: /app/logs
+        envFrom:
+          - main
+          - secrets
+        livenessProbe:
+          exec:
+            command:
+              - sh
+              - /healthcheck.sh
+        readinessProbe:
+          exec:
+            command:
+              - sh
+              - /healthcheck.sh
+          initialDelaySeconds: 10
+          periodSeconds: 10
 
 ingress:
   main:
