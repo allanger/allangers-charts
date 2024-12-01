@@ -1,0 +1,22 @@
+apiVersion: v2
+name: tandoor-recipes
+description: Application for managing recipes, planning meals, building shopping lists and much much more! 
+type: application
+version: 0.1.0
+appVersion: 1.5.24
+maintainers:
+  - name: allanger
+    email: allanger@zohomail.com
+    url: https://badhouseplants.net
+dependencies:
+  - name: helm-library
+    version: 0.1.3
+    repository: oci://ghcr.io/allanger/allangers-helm-library
+annotations:
+  allowed_workload_kinds: "Deployment"
+sources:
+  - https://github.com/TandoorRecipes/recipes
+keywords:
+  - tandoor
+  - recipes
+home: https://docs.tandoor.dev/
