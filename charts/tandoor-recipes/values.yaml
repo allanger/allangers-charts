@@ -18,8 +18,10 @@ workload:
         - main
       mounts:
         storage:
+          staticfiles:
+            path: /opt/recipes/staticfiles
           mediafiles: 
-            path: /opt/recipes
+            path: /opt/recipes/mediafiles
       livenessProbe:
         httpGet:
           path: /
@@ -63,7 +65,13 @@ service:
         targetPort: 8080
         protocol: TCP
 storage:
-  data:
+  staticfiles:
+    enabled: true
+    storageClassName: default
+    size: 512Mi
+    accessModes:
+      - ReadWriteOnce
+  mediafiles:
     enabled: true
     storageClassName: default
     size: 1Gi
