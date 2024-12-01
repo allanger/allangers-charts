@@ -6,7 +6,7 @@ workload:
   strategy:
     type: RollingUpdate
   containers:
-    navidrome:
+    tandoor:
       image:
         registry: registry.hub.docker.com
         repository: vabene1111/recipes
@@ -45,7 +45,7 @@ ingress:
           paths:
             - backend:
                 service:
-                  name: '{{ include "chart.fullname" $ }}-navidrome'
+                  name: '{{ include "chart.fullname" $ }}-tandoor'
                   port:
                     number: 8080
               path: /
