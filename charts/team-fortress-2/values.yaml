@@ -39,6 +39,7 @@ workload:
           port: 27015
   initContainers:
     0-prepare-config:
+      restartPolicy: Never
       image:
         registry: docker.io
         repository: alpine
