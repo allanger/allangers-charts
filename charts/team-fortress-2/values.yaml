@@ -88,6 +88,7 @@ service:
 storage:
   data:
     storageClassName: default
+    enabled: true
     size: 20G
     accessModes:
       - ReadWriteOnce
