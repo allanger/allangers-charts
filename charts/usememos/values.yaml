@@ -1,0 +1,80 @@
+---
+shortcuts:
+  hostname: usememos.company
+workload:
+  kind: Deployment
+  strategy:
+    type: RollingUpdate
+  containers:
+    navidrome:
+      image:
+        registry: registry.hub.docker.com
+        repository: neosmemo/memos
+        tag:
+        pullPolicy: Always
+      ports:
+        usememos: usememos
+      envFrom:
+        - main
+      mounts:
+        storage:
+          data:
+            path: /var/opt/memos
+      livenessProbe:
+        httpGet:
+          path: /
+          port: 5230
+        initialDelaySeconds: 3
+        periodSeconds: 3
+      readinessProbe:
+        httpGet:
+          path: /
+          port: 5230 
+        initialDelaySeconds: 3
+        periodSeconds: 3
+
+ingress:
+  main:
+    enabled: true
+    annotations: {}
+    class: traefik
+    rules:
+      - host: '{{ .Values.shortcuts.hostname }}'
+        http:
+          paths:
+            - backend:
+                service:
+                  name: '{{ include "chart.fullname" $ }}-usememos'
+                  port:
+                    number: 5230
+              path: /
+              pathType: Prefix
+    tls:
+      - hosts:
+          - '{{ .Values.shortcuts.hostname }}'
+        secretName: '{{ .Values.shortcuts.hostname }}'
+
+service:
+  usememos:
+    enabled: true
+    type: ClusterIP
+    ports:
+      navidrome:
+        port: 5230
+        targetPort: 5230
+        protocol: TCP
+storage:
+  data:
+    enabled: true
+    storageClassName: default
+    size: 1Gi
+    accessModes:
+      - ReadWriteOnce
+
+env:
+  main:
+    enabled: true
+    sensitive: false
+    remove: []
+    # -- For example: https://www.usememos.com/docs/install/database
+    data: []
