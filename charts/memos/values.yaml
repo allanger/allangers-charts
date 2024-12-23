@@ -6,7 +6,7 @@ workload:
   strategy:
     type: RollingUpdate
   containers:
-    navidrome:
+    memos:
       image:
         registry: registry.hub.docker.com
         repository: neosmemo/memos
