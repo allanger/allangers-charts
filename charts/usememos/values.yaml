@@ -59,7 +59,7 @@ service:
     enabled: true
     type: ClusterIP
     ports:
-      navidrome:
+      usememos:
         port: 5230
         targetPort: 5230
         protocol: TCP
