@@ -1,6 +1,6 @@
 ---
 shortcuts:
-  hostname: usememos.company
+  hostname: memos.company
 workload:
   kind: Deployment
   strategy:
@@ -13,7 +13,7 @@ workload:
         tag:
         pullPolicy: Always
       ports:
-        usememos: usememos
+        memos: memos
       envFrom:
         - main
       mounts:
@@ -44,7 +44,7 @@ ingress:
           paths:
             - backend:
                 service:
-                  name: '{{ include "chart.fullname" $ }}-usememos'
+                  name: '{{ include "chart.fullname" $ }}-memos'
                   port:
                     number: 5230
               path: /
@@ -55,11 +55,11 @@ ingress:
         secretName: '{{ .Values.shortcuts.hostname }}'
 
 service:
-  usememos:
+  memos:
     enabled: true
     type: ClusterIP
     ports:
-      usememos:
+      memos:
         port: 5230
         targetPort: 5230
         protocol: TCP
