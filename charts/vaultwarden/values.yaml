@@ -81,13 +81,13 @@ storage:
     storageClassName: default
     size: 1Gi
     accessModes:
-      - ReadWriteMany
+      - ReadWriteOnce
   logs:
     enabled: false
     storageClassName: default
     size: 1G
     accessModes:
-      - ReadWriteMany
+      - ReadWriteOnce
 
 config:
   # -- Please have a look here: https://github.com/dani-garcia/vaultwarden/blob/main/.env.template
