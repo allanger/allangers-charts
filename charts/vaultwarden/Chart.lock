@@ -1,6 +1,6 @@
 dependencies:
 - name: helm-library
   repository: oci://ghcr.io/allanger/allangers-helm-library
-  version: 0.2.0+ee27be6
-digest: sha256:b033670449460220a98dc2569abfe32225ec47566b4361165b46bcf6aa0227cc
-generated: "2024-12-25T20:35:39.332201+01:00"
+  version: 0.2.0+21de447
+digest: sha256:d37e7aaf22f76241a980ee7618dd6beaa01958bc953fb33da52b76d5c9a3a56c
+generated: "2024-12-25T20:40:25.854198+01:00"
