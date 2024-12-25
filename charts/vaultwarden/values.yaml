@@ -20,7 +20,7 @@ base:
         ports:
           main: 
             - vaultwarden
-        mounts:
+        volumeMounts:
           storage:
             data:
               path: /app/data/
