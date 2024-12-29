@@ -10,7 +10,7 @@ maintainers:
     url: https://badhouseplants.net
 dependencies:
   - name: helm-library
-    version: 0.2.0+86cbd11
+    version: 0.2.0+393e464
     repository: oci://ghcr.io/allanger/allangers-helm-library
 annotations:
   allowed_workload_kinds: "Deployment"
