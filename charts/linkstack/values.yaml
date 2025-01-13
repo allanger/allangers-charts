@@ -23,9 +23,6 @@ base:
           storage:
             data:
               path: /htdocs
-          extraVolumes:
-            apache:
-              path: /etc/apache2
         envFrom:
           main: {}
         livenessProbe:
@@ -61,9 +58,6 @@ ingress:
           - '{{ .Values.shortcuts.hostname }}'
         secretName: '{{ .Values.shortcuts.hostname }}'
 
-extraVolumes:
-  apache: 
-    emptyDir: {}
 services:
   main:
     enabled: true
