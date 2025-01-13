@@ -1,0 +1,16 @@
+{{- define "lib.component.templates" }} {{- /* define[0] */}}
+{{- include "lib.error.noCtx" . -}}
+{{-
+	$labels := include "lib.metadata.mergeLabels"
+	(dict
+		"ctx" .ctx
+		"global" ((.ctx.Values).metadata).labels
+	)
+}}
+{{- with (.ctx.Values.extra).templates }} {{- /* with[1] */}}
+{{- range . }} {{- /* range[2] */}}
+---
+{{- tpl . $.ctx | indent 0 }}
+{{- end }} {{- /* /range[2] */}}
+{{- end }} {{- /* /with[1] */}}
+{{- end }} {{- /* /define[0] */}}

@@ -9,7 +9,7 @@ base:
     strategy:
       type: RollingUpdate
     containers:
-      vaultwarden:
+      linkstack:
         image:
           registry: registry.hub.docker.com
           repository: linkstackorg/linkstack

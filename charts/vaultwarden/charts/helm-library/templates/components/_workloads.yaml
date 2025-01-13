@@ -1,0 +1,65 @@
+{{- define "lib.component.workload.allowed" -}} {{- /* define[0] */ -}}
+{{- include "lib.error.noCtx" . -}}
+{{ index .ctx.Chart.Annotations "allowed_workload_kinds" }}
+{{- end -}} {{- /* /define[0] */ -}}
+
+{{- define "lib.component.workload" -}} {{- /* define[0] */ -}}
+{{- include "lib.error.noCtx" . -}}
+{{-
+	$labels := include "lib.metadata.mergeLabels"
+	(dict
+		"ctx" .ctx
+		"global" ((.ctx.Values).metadata).labels
+		"local" (((.ctx.Values.base).workload).metadata).labels
+	)
+}}
+{{- 
+	$metadata := include "lib.metadata" 
+	(dict 
+		"ctx" .ctx 
+		"annotations" (((.ctx.Values.base).workload).metadata).annotations
+		"labels" $labels
+	) 
+}}
+{{-
+	$securityContext := include "lib.core.pod.securityContext"
+	(dict
+		"securityContext" .ctx.Values.base.workload.securityContext
+	)
+}}
+
+{{
+	$containers := include "lib.core.pod.containers"
+	(dict
+	"ctx" .ctx
+	"containers" .ctx.Values.base.workload.containers
+	)
+}}
+
+{{
+	$volumes := include "lib.core.pod.volumes"
+	(dict
+		"ctx" .ctx
+		"files" (.ctx.Values.config).files
+		"storage" .ctx.Values.storage
+		"extraVolumes" .ctx.Values.extraVolumes
+	)
+}}
+
+{{- if eq .ctx.Values.base.workload.kind "Deployment" -}} {{- /* if[0] */ -}}
+{{- if contains .ctx.Values.base.workload.kind (include "lib.component.workload.allowed" (dict "ctx" .ctx)) }}{{- /* if[0] */ -}}
+{{- 
+	include "lib.core.deployment" 
+	(dict 
+		"ctx" .ctx 
+		"metadata" $metadata
+		"securityContext" $securityContext
+		"containers" $containers
+		"volumes" $volumes
+	) 
+}} 
+{{- else -}}
+{{- fail (printf "workload kind is not allowed: %s" .ctx.Values.base.workload.kind) -}}
+{{- end }}{{- /* if[1] */ -}}
+{{- end -}} {{- /* /if[0]*/ -}}
+{{- end -}}{{- /* /define[0] */ -}}
