@@ -13,7 +13,7 @@ base:
         image:
           registry: registry.hub.docker.com
           repository: linkstackorg/linkstack
-          tag:
+          tag: latest
           pullPolicy: Always
         ports:
           main: 
