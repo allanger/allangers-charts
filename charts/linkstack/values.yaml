@@ -92,8 +92,8 @@ config:
       remove: []
       data:
         SERVER_ADMIN: '{{ .Values.shortcuts.adminEmail }}'
-        HTTP_SERVER_NAME: '{{ .Values.shortcuts.hostname }}'
-        HTTPS_SERVER_NAME: '{{ .Values.shortcuts.hostname }}'
+        HTTP_SERVER_NAME: localhost
+        HTTPS_SERVER_NAME: localhost
         LOG_LEVEL: info
         TZ: Europe/Berlin
         PHP_MEMORY_LIMIT: 256M
