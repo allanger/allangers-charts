@@ -6,7 +6,7 @@ description: |-
   Set up your personal site on your own server with just a few clicks. 
 type: application
 version: 0.1.0
-appVersion: 4.8.4
+appVersion: v4.8.4
 maintainers:
   - name: allanger
     email: allanger@zohomail.com
