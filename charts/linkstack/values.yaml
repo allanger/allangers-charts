@@ -1,0 +1,98 @@
+---
+shortcuts:
+  hostname: linkstack.company
+  adminEmail: admin@linkstack.company
+
+base:
+  workload:
+    kind: Deployment
+    strategy:
+      type: RollingUpdate
+    containers:
+      vaultwarden:
+        image:
+          registry: registry.hub.docker.com
+          repository: linkstackorg/linkstack
+          tag:
+          pullPolicy: Always
+        ports:
+          main: 
+            - http
+            - https
+        volumeMounts:
+          storage:
+            data:
+              path: /htdocs
+        envFrom:
+          main: {}
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80 
+          initialDelaySeconds: 3
+          periodSeconds: 3
+
+ingress:
+  main:
+    enabled: true
+    class: traefik
+    rules:
+      - host: '{{ .Values.shortcuts.hostname }}'
+        http:
+          paths:
+            - backend:
+                service:
+                  name: '{{ include "chart.fullname" $ }}-main'
+                  port:
+                    number: 80
+              path: /
+              pathType: Prefix
+    tls:
+      - hosts:
+          - '{{ .Values.shortcuts.hostname }}'
+        secretName: '{{ .Values.shortcuts.hostname }}'
+
+services:
+  main:
+    enabled: true
+    type: ClusterIP
+    ports:
+      http:
+        port: 80
+        targetPort: 80
+        protocol: TCP
+      https:
+        port: 443
+        targetPort: 443
+        protocol: TCP
+
+storage:
+  data:
+    enabled: true
+    storageClassName: default
+    size: 1Gi
+    accessModes:
+      - ReadWriteOnce
+
+config:
+  # -- Please have a look here: https://docs.linkstack.org/docker/setup/
+  env:
+    main:
+      enabled: true
+      sensitive: false
+      remove: []
+      data:
+        SERVER_ADMIN: '{{ .Values.shortcuts.adminEmail }}'
+        HTTP_SERVER_NAME: 'http://{{ .Values.shortcuts.hostname }}'
+        HTTPS_SERVER_NAME: 'https://{{ .Values.shortcuts.hostname }}'
+        LOG_LEVEL: info
+        TZ: Europe/Berlin
+        PHP_MEMORY_LIMIT: 256M
+        UPLOAD_MAX_FILESIZE: 8M
+
