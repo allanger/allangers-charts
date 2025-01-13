@@ -8,6 +8,9 @@ base:
     kind: Deployment
     strategy:
       type: RollingUpdate
+    securityContext:
+      seccompProfile:
+        type: RuntimeDefault
     containers:
       linkstack:
         image:
@@ -89,8 +92,8 @@ config:
       remove: []
       data:
         SERVER_ADMIN: '{{ .Values.shortcuts.adminEmail }}'
-        HTTP_SERVER_NAME: 'http://{{ .Values.shortcuts.hostname }}'
-        HTTPS_SERVER_NAME: 'https://{{ .Values.shortcuts.hostname }}'
+        HTTP_SERVER_NAME: '{{ .Values.shortcuts.hostname }}'
+        HTTPS_SERVER_NAME: '{{ .Values.shortcuts.hostname }}'
         LOG_LEVEL: info
         TZ: Europe/Berlin
         PHP_MEMORY_LIMIT: 256M
