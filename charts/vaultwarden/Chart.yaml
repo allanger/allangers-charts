@@ -2,7 +2,7 @@ apiVersion: v2
 name: vaultwarden
 description: Unofficial Bitwarden compatible server written in Rust, formerly known as bitwarden_rs
 type: application
-version: 3.0.0
+version: 3.0.1
 appVersion: 1.32.3
 maintainers:
   - name: allanger
