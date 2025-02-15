@@ -2,48 +2,51 @@
 shortcuts:
   hostname: stalwart.company
 
-workload:
-  kind: Deployment
-  strategy:
-    type: RollingUpdate
-  containers:
-    stalwart:
-      image:
-        registry: registry.hub.docker.com
-        repository: stalwartlabs/mail-server
-        tag:
-        pullPolicy: Always
-      ports:
-        https: https
-        http: http
-        smtp: smtp
-        submission: submission
-        imap: imap
-        imaptls: imaptls
-        pop3: pop3
-        pop3s: pop3s
-        sieve: sieve
-      args:
-        - --config
-        - /app/config.toml
-      mounts:
-        storage:
-          data:
-            path: /opt/stalwart-mail
-        files:
-          config:
-            path: /app/config.toml
-            subPath: config.toml
-      livenessProbe:
-        tcpSocket:
-          port: 25
-        initialDelaySeconds: 3
-        periodSeconds: 3
-      readinessProbe:
-        tcpSocket:
-          port: 25
-        initialDelaySeconds: 3
-        periodSeconds: 3
+base:
+  workload:
+    kind: Deployment
+    strategy:
+      type: RollingUpdate
+    containers:
+      stalwart:
+        image:
+          registry: registry.hub.docker.com
+          repository: stalwartlabs/mail-server
+          tag:
+          pullPolicy: Always
+        ports:
+          web:
+            - https
+            - http
+          mail:
+            - smtp
+            - submission
+            - imap
+            - imaptls
+            - pop3
+            - pop3s
+            - sieve
+        args:
+          - --config
+          - /app/config.toml
+        mounts:
+          storage:
+            data:
+              path: /opt/stalwart-mail
+          files:
+            config:
+              path: /app/config.toml
+              subPath: config.toml
+        livenessProbe:
+          tcpSocket:
+            port: 25
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        readinessProbe:
+          tcpSocket:
+            port: 25
+          initialDelaySeconds: 3
+          periodSeconds: 3
 
 ingress:
   main:
@@ -66,8 +69,8 @@ ingress:
           - '{{ .Values.shortcuts.hostname }}'
         secretName: '{{ .Values.shortcuts.hostname }}'
 
-service:
-  https:
+services:
+  web:
     enabled: true
     type: ClusterIP
     ports:
@@ -75,15 +78,11 @@ service:
         port: 443
         targetPort: 443
         protocol: TCP
-  http:
-    enabled: true
-    type: ClusterIP
-    ports:
       http:
         port: 8080
         targetPort: 8080
         protocol: TCP
-  smtp:
+  mail:
     enabled: true
     type: ClusterIP
     ports:
@@ -91,50 +90,26 @@ service:
         port: 25
         targetPort: 25
         protocol: TCP
-  submission:
-    enabled: true
-    type: ClusterIP
-    ports:
       submission:
         port: 587
         targetPort: 587
         protocol: TCP
-  imap:
-    enabled: true
-    type: ClusterIP
-    ports:
       imap:
         port: 143
         targetPort: 143
         protocol: TCP
-  imaptls:
-    enabled: true
-    type: ClusterIP
-    ports:
       imaptls:
         port: 993
         targetPort: 993
         protocol: TCP
-  pop3:
-    enabled: true
-    type: ClusterIP
-    ports:
       pop3:
         port: 110
         targetPort: 110
         protocol: TCP
-  pop3s:
-    enabled: true
-    type: ClusterIP
-    ports:
       pop3s:
         port: 995
         targetPort: 995
         protocol: TCP
-  sieve:
-    enabled: true
-    type: ClusterIP
-    ports:
       sieve:
         port: 4190
         targetPort: 4190
@@ -147,90 +122,90 @@ storage:
     accessModes:
       - ReadWriteMany
 
-# -- Not used yet
-files:
-  config:
-    enabled: false
-    sensitive: false
-    remove: []
-    entries:
-      # Ref: https://github.com/stalwartlabs/mail-server/blob/main/resources/config/config.toml
-      config.toml:
-        data: |
-          [server.listener."smtp"]
-          bind = ["[::]:25"]
-          protocol = "smtp"
-          
-          [server.listener."submission"]
-          bind = ["[::]:587"]
-          protocol = "smtp"
-          
-          [server.listener."submissions"]
-          bind = ["[::]:465"]
-          protocol = "smtp"
-          tls.implicit = true
-          
-          [server.listener."imap"]
-          bind = ["[::]:143"]
-          protocol = "imap"
-          
-          [server.listener."imaptls"]
-          bind = ["[::]:993"]
-          protocol = "imap"
-          tls.implicit = true
-          
-          [server.listener.pop3]
-          bind = "[::]:110"
-          protocol = "pop3"
-          
-          [server.listener.pop3s]
-          bind = "[::]:995"
-          protocol = "pop3"
-          tls.implicit = true
-          
-          [server.listener."sieve"]
-          bind = ["[::]:4190"]
-          protocol = "managesieve"
-          
-          [server.listener."https"]
-          protocol = "http"
-          bind = ["[::]:443"]
-          tls.implicit = false
-          
-          [storage]
-          data = "rocksdb"
-          fts = "rocksdb"
-          blob = "rocksdb"
-          lookup = "rocksdb"
-          directory = "internal"
-          
-          [store."rocksdb"]
-          type = "rocksdb"
-          path = "/app/data/data/"
-          compression = "lz4"
-          
-          [directory."internal"]
-          type = "internal"
-          store = "rocksdb"
-          
-          [tracer."stdout"]
-          type = "stdout"
-          level = "info"
-          ansi = false
-          enable = true
-          
-          #[server.run-as]
-          #user = "stalwart-mail"
-          #group = "stalwart-mail"
-          
-          [authentication.fallback-admin]
-          user = "admin"
-          secret = 'R@ndomToken$tring'
-          # SSL/TLS Certificate from a local file
-          #[certificate."default"]
-          #cert = "%{file:/app/certs/}%"
-
-          # Dynamic hostname using another configuration setting
-          [lookup.default]
-          domain = "badhouseplants.net"
-          hostname = "stalwart.%{cfg:lookup.default.domain}%"
+config:
+  files:
+    config:
+      enabled: false
+      sensitive: false
+      remove: []
+      entries:
+        # Ref: https://github.com/stalwartlabs/mail-server/blob/main/resources/config/config.toml
+        config.toml:
+          data: |
+            [server.listener."smtp"]
+            bind = ["[::]:25"]
+            protocol = "smtp"
+            
+            [server.listener."submission"]
+            bind = ["[::]:587"]
+            protocol = "smtp"
+            
+            [server.listener."submissions"]
+            bind = ["[::]:465"]
+            protocol = "smtp"
+            tls.implicit = true
+            
+            [server.listener."imap"]
+            bind = ["[::]:143"]
+            protocol = "imap"
+            
+            [server.listener."imaptls"]
+            bind = ["[::]:993"]
+            protocol = "imap"
+            tls.implicit = true
+            
+            [server.listener.pop3]
+            bind = "[::]:110"
+            protocol = "pop3"
+            
+            [server.listener.pop3s]
+            bind = "[::]:995"
+            protocol = "pop3"
+            tls.implicit = true
+            
+            [server.listener."sieve"]
+            bind = ["[::]:4190"]
+            protocol = "managesieve"
+            
+            [server.listener."https"]
+            protocol = "http"
+            bind = ["[::]:443"]
+            tls.implicit = false
+            
+            [storage]
+            data = "rocksdb"
+            fts = "rocksdb"
+            blob = "rocksdb"
+            lookup = "rocksdb"
+            directory = "internal"
+            
+            [store."rocksdb"]
+            type = "rocksdb"
+            path = "/app/data/data/"
+            compression = "lz4"
+            
+            [directory."internal"]
+            type = "internal"
+            store = "rocksdb"
+            
+            [tracer."stdout"]
+            type = "stdout"
+            level = "info"
+            ansi = false
+            enable = true
+            
+            #[server.run-as]
+            #user = "stalwart-mail"
+            #group = "stalwart-mail"
+            
+            [authentication.fallback-admin]
+            user = "admin"
+            secret = 'R@ndomToken$tring'
+            # SSL/TLS Certificate from a local file
+            #[certificate."default"]
+            #cert = "%{file:/app/certs/}%"
+  
+            # Dynamic hostname using another configuration setting
+            [lookup.default]
+            domain = "badhouseplants.net"
+            hostname = "stalwart.%{cfg:lookup.default.domain}%"
