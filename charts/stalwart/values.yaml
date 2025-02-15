@@ -59,7 +59,7 @@ ingress:
           paths:
             - backend:
                 service:
-                  name: '{{ include "chart.fullname" $ }}-http'
+                  name: '{{ include "chart.fullname" $ }}-web'
                   port:
                     number: 8080
               path: /
