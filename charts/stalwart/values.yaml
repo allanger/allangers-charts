@@ -20,7 +20,8 @@ base:
             - http
           mail:
             - smtp
-            - submission
+            - smtps
+            - smtp-startls
             - imap
             - imaptls
             - pop3
@@ -90,7 +91,11 @@ services:
         port: 25
         targetPort: 25
         protocol: TCP
-      submission:
+      smtps:
+        port: 465
+        targetPort: 465
+        protocol: TCP
+      smtp-startls:
         port: 587
         targetPort: 587
         protocol: TCP
