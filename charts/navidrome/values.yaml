@@ -92,13 +92,13 @@ storage:
     storageClassName: default
     size: 1Gi
     accessModes:
-      - ReadWriteMany
+      - ReadWriteOnce
   music:
     enabled: true
     storageClassName: default
     size: 1Gi
     accessModes:
-      - ReadWriteMany
+      - ReadWriteOnce
 
 
 env:
