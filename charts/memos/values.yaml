@@ -19,7 +19,7 @@ base:
             - memos
         envFrom:
           main: {}
-        mounts:
+        volumeMounts:
           storage:
             data:
               path: /var/opt/memos
