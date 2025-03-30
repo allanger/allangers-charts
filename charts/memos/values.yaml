@@ -1,37 +1,40 @@
 ---
 shortcuts:
   hostname: memos.company
-workload:
-  kind: Deployment
-  strategy:
-    type: RollingUpdate
-  containers:
-    memos:
-      image:
-        registry: registry.hub.docker.com
-        repository: neosmemo/memos
-        tag:
-        pullPolicy: Always
-      ports:
-        memos: memos
-      envFrom:
-        - main
-      mounts:
-        storage:
-          data:
-            path: /var/opt/memos
-      livenessProbe:
-        httpGet:
-          path: /
-          port: 5230
-        initialDelaySeconds: 3
-        periodSeconds: 3
-      readinessProbe:
-        httpGet:
-          path: /
-          port: 5230 
-        initialDelaySeconds: 3
-        periodSeconds: 3
+
+base:
+  workload:
+    kind: Deployment
+    strategy:
+      type: RollingUpdate
+    containers:
+      memos:
+        image:
+          registry: registry.hub.docker.com
+          repository: neosmemo/memos
+          tag:
+          pullPolicy: Always
+        ports:
+          main:
+            - memos
+        envFrom:
+          main: {}
+        mounts:
+          storage:
+            data:
+              path: /var/opt/memos
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5230
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5230 
+          initialDelaySeconds: 3
+          periodSeconds: 3
 
 ingress:
   main:
@@ -44,7 +47,7 @@ ingress:
           paths:
             - backend:
                 service:
-                  name: '{{ include "chart.fullname" $ }}-memos'
+                  name: '{{ include "chart.fullname" $ }}-main'
                   port:
                     number: 5230
               path: /
@@ -54,8 +57,8 @@ ingress:
           - '{{ .Values.shortcuts.hostname }}'
         secretName: '{{ .Values.shortcuts.hostname }}'
 
-service:
-  memos:
+services:
+  main:
     enabled: true
     type: ClusterIP
     ports:
@@ -71,10 +74,11 @@ storage:
     accessModes:
       - ReadWriteOnce
 
-env:
-  main:
-    enabled: true
-    sensitive: false
-    remove: []
-    # -- For example: https://www.usememos.com/docs/install/database
-    data: []
+config:
+  env:
+    main:
+      enabled: true
+      sensitive: false
+      remove: []
+      # -- For example: https://www.usememos.com/docs/install/database
+      data: []
