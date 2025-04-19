@@ -2,8 +2,8 @@ apiVersion: v2
 name: stalwart
 description: Secure & Modern All-in-One Mail Server (IMAP, JMAP, POP3, SMTP)
 type: application
-version: 1.0.1
-appVersion: v0.11.6
+version: 1.2.0
+appVersion: v0.11.7
 maintainers:
   - name: allanger
     email: allanger@zohomail.com

@@ -2,8 +2,8 @@ apiVersion: v2
 name: navidrome
 description: Modern Music Server and Streamer compatible with Subsonic/Airsonic
 type: application
-version: 0.5.0
-appVersion: 0.55.1
+version: 0.56.0
+appVersion: 0.55.2
 maintainers:
   - name: allanger
     email: allanger@zohomail.com
