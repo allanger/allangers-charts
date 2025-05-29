@@ -39,6 +39,7 @@ base:
           periodSeconds: 3
     initContainers:
       rclone:
+        restartPolicy: Always
         image:
           registry: registry.hub.docker.com
           repository: rclone/rclone
