@@ -2,7 +2,7 @@ apiVersion: v2
 name: server-xray
 description: Xray, Penetrates Everything. Also the best v2ray-core, with XTLS support. Fully compatible configuration. 
 type: application
-version: 0.9.0
+version: 0.10.0
 appVersion: 25.4.30
 maintainers:
   - name: allanger
@@ -10,7 +10,7 @@ maintainers:
     url: https://badhouseplants.net
 dependencies:
   - name: helm-library
-    version: 0.2.3
+    version: 0.2.5
     repository: oci://ghcr.io/allanger/allangers-helm-library
 annotations:
   allowed_workload_kinds: "Deployment"

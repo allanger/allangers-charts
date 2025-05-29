@@ -2,7 +2,7 @@ apiVersion: v2
 name: memos
 description: An open-source, lightweight note-taking solution. The pain-less way to create your meaningful notes. Your Notes, Your Way. 
 type: application
-version: 0.5.0
+version: 0.6.0
 appVersion: 0.24.3
 maintainers:
   - name: allanger
@@ -10,7 +10,7 @@ maintainers:
     url: https://badhouseplants.net
 dependencies:
   - name: helm-library
-    version: 0.2.2
+    version: 0.2.5
     repository: oci://ghcr.io/allanger/allangers-helm-library
 annotations:
   allowed_workload_kinds: "Deployment"
