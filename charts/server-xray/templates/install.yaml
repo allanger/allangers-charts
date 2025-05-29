@@ -1,6 +1,6 @@
-{{ include "lib.component.workload" . }}
-{{ include "lib.component.service" . }}
-{{ include "lib.component.ingress" . }}
-{{ include "lib.component.env" . }}
-{{ include "lib.component.files" . }}
-{{ include "lib.component.storage" . }}
+{{ include "lib.component.workload" (dict "ctx" .)}}
+{{ include "lib.component.service" (dict "ctx" .) }}
+{{ include "lib.component.environment" (dict "ctx" .) }}
+{{ include "lib.component.files" (dict "ctx" .) }}
+{{ include "lib.component.templates" (dict "ctx" .) }}
+

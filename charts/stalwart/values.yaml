@@ -30,7 +30,7 @@ base:
         args:
           - --config
           - /app/config.toml
-        mounts:
+        volumeMounts:
           storage:
             data:
               path: /opt/stalwart-mail

@@ -1,69 +1,43 @@
 ---
 shortcuts:
   hostname: xray.company
-workload:
-  kind: Deployment
-  strategy:
-    type: RollingUpdate
-  containers:
-    server-xray:
-      image:
-        registry: ghcr.io
-        repository: xtls/xray-core
-        tag:
-        pullPolicy: Always
-      ports:
-        xray-http: http
-        xray-https: https
-      args: 
-        - -config
-        - /app/config.json
-      mounts:
-        extraVolumes:
-          certs:
-            path: /app/certs
-        files:
-          config:
-            path: /app/config.json
-            subPath: config.json
-      livenessProbe:
-        tcpSocket:
-          port: 443
-        initialDelaySeconds: 3
-        periodSeconds: 3
-      readinessProbe:
-        tcpSocket:
-          port: 443
-        initialDelaySeconds: 3
-        periodSeconds: 3
-ingress:
-  main:
-    enabled: true
-    annotations: {}
-    class: traefik
-    rules:
-      - host: '{{ .Values.shortcuts.hostname }}'
-        http:
-          paths:
-            - backend:
-                service:
-                  name: '{{ include "chart.fullname" $ }}-xray-https'
-                  port:
-                    number: 443
-              path: /
-              pathType: Prefix
-    tls:
-      - hosts:
-          - '{{ .Values.shortcuts.hostname }}'
-        secretName: '{{ .Values.shortcuts.hostname }}'
+base:
+  workload:
+    kind: Deployment
+    strategy:
+      type: RollingUpdate
+    containers:
+      server-xray:
+        image:
+          registry: ghcr.io
+          repository: xtls/xray-core
+          tag:
+          pullPolicy: Always
+        ports:
+          xray: 
+            - http
+            - https
+        args: 
+          - -config
+          - /app/config.json
+        volumeMounts:
+          files:
+            config:
+              path: /app/config.json
+              subPath: config.json
+        livenessProbe:
+          tcpSocket:
+            port: 443
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        readinessProbe:
+          tcpSocket:
+            port: 443
+          initialDelaySeconds: 3
+          periodSeconds: 3
 
-extraVolumes:
-  certs:
-    secret:
-      secretName: xray.badhouseplants.net
-
-service:
-  xray-https:
+services:
+  xray:
     enabled: true
     type: ClusterIP
     ports:
@@ -71,103 +45,99 @@ service:
         port: 443
         targetPort: 443
         protocol: TCP
-  xray-http:
-    enabled: true
-    type: ClusterIP
-    ports:
       http:
         port: 80
         targetPort: 80
         protocol: TCP
-
-files:
-  config:
-    enabled: true
-    sensitive: false
-    remove: []
-    entries:
-      config.json: 
-        data: |
-          {
-          	// 1\_Log settings
-          	"log": {
-          		"loglevel": "info" // content from less to more: "none", "error", "warning", "info", "debug"
-          	},
-          	// 2_DNS settings
-          	"dns": {
-          		"servers": [
-          			"https+local://1.1.1.1/dns-query", // Prefer 1.1.1.1 DoH query, sacrificing speed but preventing ISP snooping
-          			"localhost"
-          		]
-          	},
-          	// 3*Diversion settings
-          	"routing": {
-          		"domainStrategy": "IPIfNonMatch",
-          		"rules": [
-          			// 3.1 Prevent local server flow problems: such as intranet attacks or abuse, incorrect local loopbacks, etc.
-          			{
-          				"type": "field",
-          				"ip": [
-          					"geoip:private" // Diversion condition: In the geoip file, the rule named "private" (local)
-          				],
-          				"outboundTag": "block" // Diversion strategy: Hand over to the outbound "block" for processing (black hole shielding)
-          			},
-          			{
-          				// 3.2 Prevent the server from connecting directly to China
-          				"type": "field",
-          				"ip": ["geoip:cn"],
-          				"outboundTag": "block"
-          			},
-          			// 3.3 Block ads
-          			{
-          				"type": "field",
-          				"domain": [
-          					"geosite:category-ads-all" // Diversion conditions: In the geosite file, the rule named "category-ads-all" (various advertising domain names)
-          				],
-          				"outboundTag": "block" // Diversion strategy: Hand it over to the outbound "block" for processing (black hole shielding)
-          			}
-          		]
-          	},
-          	// 4* Inbound settings
-          	// 4.1 Here is only the simplest vless+xtls inbound, because this is the most powerful mode of Xray. If you need other, please add it according to the template.
-          	"inbounds": [{
-          		"port": 443,
-          		"protocol": "vless",
-          		"settings": {
-          			"clients": [{
-          				"id": "ID", // Fill in your UUID
-          				"flow": "xtls-rprx-vision",
-          				"level": 0,
-          				"email": "vpsadmin@xray.company"
-          			}],
-          			"decryption": "none",
-          			"fallbacks": [{
-          				"dest": 80 // Fall back to anti-detection proxy by default
-          			}]
-          		},
-          		"streamSettings": {
-          			"network": "tcp",
-          			"security": "tls",
-          			"tlsSettings": {
-          				"alpn": "http/1.1",
-          				"certificates": [{
-          					"certificateFile": "/app/certs/tls.crt",
-          					"keyFile": "/app/certs/tls.key"
-          				}]
-          			}
-          		}
-          	}],
-          	// 5*Outbound settings
-          	"outbounds": [
-          		// 5.1 The first outbound is the default rule, freedom is a direct connection to the outside (vps is already an external network, so it is a direct connection)
-          		{
-          			"tag": "direct",
-          			"protocol": "freedom"
-          		},
-          		// 5.2 Blocking rules, blackhole protocol is to import traffic into the black hole (blocking)
-          		{
-          			"tag": "block",
-          			"protocol": "blackhole"
-          		}
-          	]
-          }
+config:
+  files:
+    config:
+      enabled: true
+      sensitive: false
+      remove: []
+      entries:
+        config.json: 
+          data: |
+            {
+            	// 1\_Log settings
+            	"log": {
+            		"loglevel": "info" // content from less to more: "none", "error", "warning", "info", "debug"
+            	},
+            	// 2_DNS settings
+            	"dns": {
+            		"servers": [
+            			"https+local://1.1.1.1/dns-query", // Prefer 1.1.1.1 DoH query, sacrificing speed but preventing ISP snooping
+            			"localhost"
+            		]
+            	},
+            	// 3*Diversion settings
+            	"routing": {
+            		"domainStrategy": "IPIfNonMatch",
+            		"rules": [
+            			// 3.1 Prevent local server flow problems: such as intranet attacks or abuse, incorrect local loopbacks, etc.
+            			{
+            				"type": "field",
+            				"ip": [
+            					"geoip:private" // Diversion condition: In the geoip file, the rule named "private" (local)
+            				],
+            				"outboundTag": "block" // Diversion strategy: Hand over to the outbound "block" for processing (black hole shielding)
+            			},
+            			{
+            				// 3.2 Prevent the server from connecting directly to China
+            				"type": "field",
+            				"ip": ["geoip:cn"],
+            				"outboundTag": "block"
+            			},
+            			// 3.3 Block ads
+            			{
+            				"type": "field",
+            				"domain": [
+            					"geosite:category-ads-all" // Diversion conditions: In the geosite file, the rule named "category-ads-all" (various advertising domain names)
+            				],
+            				"outboundTag": "block" // Diversion strategy: Hand it over to the outbound "block" for processing (black hole shielding)
+            			}
+            		]
+            	},
+            	// 4* Inbound settings
+            	// 4.1 Here is only the simplest vless+xtls inbound, because this is the most powerful mode of Xray. If you need other, please add it according to the template.
+            	"inbounds": [{
+            		"port": 443,
+            		"protocol": "vless",
+            		"settings": {
+            			"clients": [{
+            				"id": "ID", // Fill in your UUID
+            				"flow": "xtls-rprx-vision",
+            				"level": 0,
+            				"email": "vpsadmin@xray.company"
+            			}],
+            			"decryption": "none",
+            			"fallbacks": [{
+            				"dest": 80 // Fall back to anti-detection proxy by default
+            			}]
+            		},
+            		"streamSettings": {
+            			"network": "tcp",
+            			"security": "tls",
+            			"tlsSettings": {
+            				"alpn": "http/1.1",
+            				"certificates": [{
+            					"certificateFile": "/app/certs/tls.crt",
+            					"keyFile": "/app/certs/tls.key"
+            				}]
+            			}
+            		}
+            	}],
+            	// 5*Outbound settings
+            	"outbounds": [
+            		// 5.1 The first outbound is the default rule, freedom is a direct connection to the outside (vps is already an external network, so it is a direct connection)
+            		{
+            			"tag": "direct",
+            			"protocol": "freedom"
+            		},
+            		// 5.2 Blocking rules, blackhole protocol is to import traffic into the black hole (blocking)
+            		{
+            			"tag": "block",
+            			"protocol": "blackhole"
+            		}
+            	]
+            }
