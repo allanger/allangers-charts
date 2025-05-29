@@ -20,7 +20,7 @@ base:
         args: 
           - -config
           - /app/config.json
-        mounts:
+        volumeMounts:
           files:
             config:
               path: /app/config.json
