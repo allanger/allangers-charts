@@ -11,7 +11,7 @@ base:
       stalwart:
         image:
           registry: registry.hub.docker.com
-          repository: stalwartlabs/mail-server
+          repository: stalwartlabs/stalwart
           tag:
           pullPolicy: Always
         ports:
