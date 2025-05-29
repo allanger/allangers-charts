@@ -71,7 +71,7 @@ ingress:
           paths:
             - backend:
                 service:
-                  name: '{{ include "chart.fullname" $ }}-navidrome'
+                  name: '{{ include "chart.fullname" $ }}-main'
                   port:
                     number: 4533
               path: /
