@@ -33,7 +33,7 @@ base:
         volumeMounts:
           storage:
             data:
-              path: /opt/stalwart-mail
+              path: /opt/stalwart
           files:
             config:
               path: /app/config.toml
