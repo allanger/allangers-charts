@@ -47,7 +47,7 @@ base:
           repository: alpine
           tag: latest
           pullPolicy: Always
-        mounts:
+        volumeMounts:
           storage:
             data:
               path: /tf-data
