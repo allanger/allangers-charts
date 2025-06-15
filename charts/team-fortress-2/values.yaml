@@ -10,8 +10,9 @@ base:
           tag:
           pullPolicy: Always
         ports:
-          tf2: 
+          main: 
             - tf2
+          extra:
             - rcon
             - tv
         volumeMounts:
@@ -62,7 +63,7 @@ base:
           - -c
           - mkdir -p /tf-data/tf/cfg && cp /src/server.cfg /tf-data/tf/cfg/server.cfg
 services:
-  tf2:
+  main:
     enabled: true
     type: ClusterIP
     ports:
@@ -70,6 +71,10 @@ services:
         port: 27015
         targetPort: 27015
         protocol: UDP
+  extra:
+    enabled: true
+    type: ClusterIP
+    ports:
       tv:
         port: 27020
         targetPort: 27020
