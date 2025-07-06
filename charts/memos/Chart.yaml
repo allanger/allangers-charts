@@ -2,7 +2,7 @@ apiVersion: v2
 name: memos
 description: An open-source, lightweight note-taking solution. The pain-less way to create your meaningful notes. Your Notes, Your Way. 
 type: application
-version: 0.7.0
+version: 0.8.0
 appVersion: 0.24.4
 maintainers:
   - name: allanger

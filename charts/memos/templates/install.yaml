@@ -3,3 +3,4 @@
 {{ include "lib.component.ingress" (dict "ctx" .) }}
 {{ include "lib.component.environment" (dict "ctx" .) }}
 {{ include "lib.component.storage" (dict "ctx" .) }}
+{{ include "lib.component.templates" (dict "ctx" .) }}
