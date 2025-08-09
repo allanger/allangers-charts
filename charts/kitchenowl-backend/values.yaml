@@ -2,6 +2,8 @@
 shortcuts:
   backendURL: kitchenowl-api.company
   frontendURL: kitchenowl.company
+  backendProto: https
+  frontendProto: https
 
 base:
   workload:
@@ -91,7 +93,7 @@ config:
       remove: []
       data:
         STORAGE_PATH: /app/data
-        FRONT_URL: '{{ .Values.shortcuts.frontendURL }}'
+        FRONT_URL: '{{ .Values.shortcuts.frontendProto }}://{{ .Values.shortcuts.frontendURL }}'
     backend-secrets:
       enabled: true
       sensitive: true
