@@ -37,6 +37,13 @@ base:
             port: 8080
           initialDelaySeconds: 3
           periodSeconds: 3
+        startupProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 3
+          failureThreshold: 80
 ingress:
   backend:
     enabled: true
@@ -84,6 +91,7 @@ config:
       remove: []
       data:
         STORAGE_PATH: /app/data
+        FRONT_URL: '{{ .Values.shortcuts.frontendURL }}'
     backend-secrets:
       enabled: true
       sensitive: true
