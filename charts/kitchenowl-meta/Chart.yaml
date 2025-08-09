@@ -1,5 +1,5 @@
 apiVersion: v2
-name: kitechenowl-meta
+name: kitchenowl-meta
 description: |-
   KitchenOwl is a self-hosted grocery list and recipe manager. The backend is made with Flask and the frontend with Flutter. Easily add items to your shopping list before you go shopping. You can also create recipes and add items based on what you want to cook.
 type: application
@@ -10,10 +10,10 @@ maintainers:
     email: allanger@zohomail.com
     url: https://badhouseplants.net
 dependencies:
-  - name: kitechenowl-backend
+  - name: kitchenowl-backend
     version: '*'
     repository: file://../kitchenowl-backend
-  - name: kitechenowl-web
+  - name: kitchenowl-web
     version: '*'
     repository: file://../kitchenowl-web
 annotations:
