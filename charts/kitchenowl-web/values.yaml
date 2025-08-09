@@ -20,7 +20,7 @@ base:
             - http
         volumeMounts:
           extraVolumes:
-            nginxCache:
+            nginx-cache:
               path: /var/cache/nginx/
         envFrom:
           frontend-env: {}
@@ -59,7 +59,7 @@ ingress:
 
 extraVolumes:
   # -- Because by default the fs is read-only, we need to add an emtpy dir volume
-  nginxCache:
+  nginx-cache:
     emptyDir: {}
 
 services:
