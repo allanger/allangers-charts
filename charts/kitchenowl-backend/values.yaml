@@ -57,7 +57,7 @@ ingress:
           paths:
             - backend:
                 service:
-                  name: '{{ include "chart.fullname" $ }}-backend'
+                  name: '{{ include "chart.name" $ }}-backend'
                   port:
                     number: 5000
               path: /
