@@ -9,10 +9,10 @@ base:
     strategy:
       type: RollingUpdate
     containers:
-      navidrome:
+      kitchenowl:
         image:
           registry: registry.hub.docker.com
-          repository: tombursch/kitchenowl
+          repository: tombursch/kitchenowl-backend
           tag:
           pullPolicy: Always
         ports:
