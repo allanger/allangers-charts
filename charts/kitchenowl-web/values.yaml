@@ -33,7 +33,7 @@ base:
           initialDelaySeconds: 3
           periodSeconds: 3
 ingress:
-  main:
+  frontend:
     enabled: true
     annotations: {}
     class: traefik
@@ -54,7 +54,7 @@ ingress:
         secretName: '{{ .Values.shortcuts.frontendURL }}'
 
 services:
-  main:
+  frontend:
     enabled: true
     type: ClusterIP
     ports:
@@ -65,7 +65,7 @@ services:
 
 config:
   env:
-    main:
+    frontend-env:
       enabled: true
       sensitive: false
       remove: []

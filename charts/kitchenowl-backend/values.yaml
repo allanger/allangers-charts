@@ -38,7 +38,7 @@ base:
           initialDelaySeconds: 3
           periodSeconds: 3
 ingress:
-  main:
+  backend:
     enabled: true
     annotations: {}
     class: traefik
@@ -59,7 +59,7 @@ ingress:
         secretName: '{{ .Values.shortcuts.backendURL }}'
 
 services:
-  main:
+  backend:
     enabled: true
     type: ClusterIP
     ports:
@@ -78,13 +78,13 @@ storage:
 
 config:
   env:
-    main:
+    backend-env:
       enabled: true
       sensitive: false
       remove: []
       data:
         STORAGE_PATH: /app/data
-    secrets:
+    backend-secrets:
       enabled: true
       sensitive: true
       remove: []
