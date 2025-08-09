@@ -9,7 +9,7 @@ base:
     strategy:
       type: RollingUpdate
     containers:
-      navidrome:
+      kitchenowl:
         image:
           registry: registry.hub.docker.com
           repository: tombursch/kitchenowl
@@ -37,6 +37,13 @@ base:
             port: 8080
           initialDelaySeconds: 3
           periodSeconds: 3
+        startupProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 3
+          failureThreshold: 80
 ingress:
   main:
     enabled: true

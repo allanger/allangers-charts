@@ -9,7 +9,7 @@ base:
     strategy:
       type: RollingUpdate
     containers:
-      navidrome:
+      kitchenowl-web:
         image:
           registry: registry.hub.docker.com
           repository: tombursch/kitchenowl-web
@@ -18,6 +18,10 @@ base:
         ports:
           frontend: 
             - http
+        volumeMounts:
+          extraVolumes:
+            nginxCache:
+              path: /var/cache/nginx/
         envFrom:
           frontend-env: {}
         livenessProbe:
@@ -52,6 +56,11 @@ ingress:
       - hosts:
           - '{{ .Values.shortcuts.frontendURL }}'
         secretName: '{{ .Values.shortcuts.frontendURL }}'
+
+extraVolumes:
+  # -- Because by default the fs is read-only, we need to add an emtpy dir volume
+  nginxCache:
+    emptyDir: {}
 
 services:
   frontend:
