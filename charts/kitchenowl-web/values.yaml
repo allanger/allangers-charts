@@ -16,10 +16,10 @@ base:
           tag:
           pullPolicy: Always
         ports:
-          main: 
+          frontend: 
             - http
         envFrom:
-          main: {}
+          frontend-env: {}
         livenessProbe:
           httpGet:
             path: /

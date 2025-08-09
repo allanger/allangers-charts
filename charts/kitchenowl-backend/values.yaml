@@ -16,11 +16,11 @@ base:
           tag:
           pullPolicy: Always
         ports:
-          main: 
+          backend: 
             - http
         envFrom:
-          main: {}
-          secrets: {}
+          backend-env: {}
+          backend-secrets: {}
         volumeMounts:
           storage:
             data:
