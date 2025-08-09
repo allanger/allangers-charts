@@ -1,0 +1,74 @@
+---
+shortcuts:
+  backendURL: kitchenowl-api.company
+  frontendURL: kitchenowl.company
+
+base:
+  workload:
+    kind: Deployment
+    strategy:
+      type: RollingUpdate
+    containers:
+      navidrome:
+        image:
+          registry: registry.hub.docker.com
+          repository: tombursch/kitchenowl-web
+          tag:
+          pullPolicy: Always
+        ports:
+          main: 
+            - http
+        envFrom:
+          main: {}
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 3
+ingress:
+  main:
+    enabled: true
+    annotations: {}
+    class: traefik
+    rules:
+      - host: '{{ .Values.shortcuts.frontendURL }}'
+        http:
+          paths:
+            - backend:
+                service:
+                  name: '{{ include "chart.fullname" $ }}-main'
+                  port:
+                    number: 80
+              path: /
+              pathType: Prefix
+    tls:
+      - hosts:
+          - '{{ .Values.shortcuts.frontendURL }}'
+        secretName: '{{ .Values.shortcuts.frontendURL }}'
+
+services:
+  main:
+    enabled: true
+    type: ClusterIP
+    ports:
+      http:
+        port: 80
+        targetPort: 80
+        protocol: TCP
+
+config:
+  env:
+    main:
+      enabled: true
+      sensitive: false
+      remove: []
+      data:
+        BACK_URL: '{{ .Values.shortcuts.backendURL }}'
+  

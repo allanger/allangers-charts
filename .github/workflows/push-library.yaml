@@ -20,7 +20,12 @@ jobs:
           helm registry login ghcr.io \
             --username ${{ github.actor }} \
             --password ${{ github.token }}
-          for chart in $(find charts -maxdepth 1 -mindepth 1 -type d); do
+          # -- Meta packages should be built after regular ones
+          for chart in $(find charts -maxdepth 1 -mindepth 1 -type d -not -name "*meta*"); do
+            helm dep build $chart
+            helm package $chart -d chart-packages;
+          done
+          for chart in $(find charts -maxdepth 1 -mindepth 1 -type d -name "*meta*"); do
             helm dep build $chart
             helm package $chart -d chart-packages;
           done
