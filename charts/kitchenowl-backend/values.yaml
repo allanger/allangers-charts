@@ -30,19 +30,19 @@ base:
         livenessProbe:
           httpGet:
             path: /
-            port: 8080
+            port: 5000
           initialDelaySeconds: 3
           periodSeconds: 3
         readinessProbe:
           httpGet:
             path: /
-            port: 8080
+            port: 5000
           initialDelaySeconds: 3
           periodSeconds: 3
         startupProbe:
           httpGet:
             path: /
-            port: 8080
+            port: 5000
           initialDelaySeconds: 3
           periodSeconds: 3
           failureThreshold: 80
@@ -59,7 +59,7 @@ ingress:
                 service:
                   name: '{{ include "chart.fullname" $ }}-main'
                   port:
-                    number: 8080
+                    number: 5000
               path: /
               pathType: Prefix
     tls:
@@ -73,8 +73,8 @@ services:
     type: ClusterIP
     ports:
       http:
-        port: 8080
-        targetPort: 8080
+        port: 5000
+        targetPort: 5000
         protocol: TCP
 
 storage:
