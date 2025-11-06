@@ -27,17 +27,17 @@ base:
         livenessProbe:
           httpGet:
             path: /
-            port: gotosocial
+            port: 8080
           failureThreshold: 20
         readinessProbe:
           httpGet:
             path: /
-            port: gotosocial
+            port: 8080
           failureThreshold: 20
         startUpProbe:
           httpGet:
             path: /
-            port: gotosocial
+            port: 8080
           failureThreshold: 80
 
 ingress:
