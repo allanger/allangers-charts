@@ -1,0 +1,107 @@
+---
+shortcuts:
+  hostname: gotosocial.company
+
+base:
+  workload:
+    kind: Deployment
+    strategy:
+      type: Recreate
+    containers:
+      vaultwarden:
+        image:
+          registry: registry.hub.docker.com
+          repository: superseriousbusiness/gotosocial
+          tag:
+          pullPolicy: Always
+        ports:
+          main: 
+            - gotosocial
+        volumeMounts:
+          storage:
+            data:
+              path: /app/data/
+          extraVolumes:
+            logs:
+              path: /app/logs
+        envFrom:
+          main: {}
+          secrets: {}
+        livenessProbe:
+          httpGet:
+            path: /
+            port: gotosocial
+          failureThreshold: 20
+        readinessProbe:
+          httpGet:
+            path: /
+            port: gotosocial
+          failureThreshold: 20
+        startUpProbe:
+          httpGet:
+            path: /
+            port: gotosocial
+          failureThreshold: 80
+
+ingress:
+  main:
+    enabled: true
+    class: traefik
+    rules:
+      - host: '{{ .Values.shortcuts.hostname }}'
+        http:
+          paths:
+            - backend:
+                service:
+                  name: '{{ include "chart.fullname" $ }}-main'
+                  port:
+                    number: 8080
+              path: /
+              pathType: Prefix
+    tls:
+      - hosts:
+          - '{{ .Values.shortcuts.hostname }}'
+        secretName: '{{ .Values.shortcuts.hostname }}'
+
+services:
+  main:
+    enabled: true
+    type: ClusterIP
+    ports:
+      gotosocial:
+        port: 8000
+        targetPort: 8000
+        protocol: TCP
+
+storage:
+  data:
+    enabled: false
+    storageClassName: default
+    size: 1Gi
+    accessModes:
+      - ReadWriteOnce
+
+config:
+  files:
+    config:
+      enabled: true
+      sensitive: false
+      entries:
+        # -- Please have a look here: https://codeberg.org/superseriousbusiness/gotosocial/src/branch/main/example/config.yaml#
+        config.yaml:
+          convertTo: yaml
+          data:
+            log-level: "info"
+            port: 8080
+  env:
+    main:
+      enabled: false
+      sensitive: false
+      remove: []
+      data: ~
+  
+    secrets:
+      enabled: false
+      sensitive: true
+      remove: []
+      data: ~
