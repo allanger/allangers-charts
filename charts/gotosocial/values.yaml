@@ -92,13 +92,15 @@ config:
             port: 8080
   env:
     main:
-      enabled: false
+      enabled: true
       sensitive: false
       remove: []
-      data: ~
+      data:
+        DUMMY: DUMMY
   
     secrets:
-      enabled: false
+      enabled: true
       sensitive: true
       remove: []
-      data: ~
+      data: 
+        DUMMY: DUMMY
