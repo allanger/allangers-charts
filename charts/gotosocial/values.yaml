@@ -21,9 +21,6 @@ base:
           storage:
             data:
               path: /app/data/
-          extraVolumes:
-            logs:
-              path: /app/logs
         envFrom:
           main: {}
           secrets: {}
