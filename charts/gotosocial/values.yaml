@@ -17,10 +17,10 @@ base:
         ports:
           main: 
             - gotosocial
-        volumeMounts:
-          storage:
-            data:
-              path: /app/data/
+        volumeMounts: ~
+        #  storage:
+        #    data:
+        #      path: /app/data/
         envFrom:
           main: {}
           secrets: {}
