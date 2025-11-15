@@ -1,0 +1,23 @@
+---
+apiVersion: v2
+name: penpot-exporter
+description: |-
+  Penpot: The open-source design tool for design and code collaboration
+type: application
+version: 0.1.0
+appVersion: 2.11.1
+maintainers:
+  - name: allanger
+    email: allanger@zohomail.com
+    url: https://badhouseplants.net
+dependencies:
+  - name: helm-library
+    version: 0.2.5
+    repository: oci://ghcr.io/allanger/allangers-helm-library
+annotations:
+  allowed_workload_kinds: "Deployment"
+sources:
+  - https://github.com/penpot/penpot
+keywords:
+  - penpot
+home: https://penpot.app/

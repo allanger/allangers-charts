@@ -1,0 +1,77 @@
+---
+shortcuts:
+  hostname: penpot.company
+
+base:
+  workload:
+    kind: Deployment
+    strategy:
+      type: RollingUpdate
+    containers:
+      penpot:
+        image:
+          registry: registry.hub.docker.com
+          repository: penpotapp/exporter
+          tag:
+          pullPolicy: Always
+        ports:
+          main:
+            - penpot
+        envFrom:
+          main: {}
+        livenessProbe:
+          httpGet:
+            path: /readyz
+            port: 6061
+          failureThreshold: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 6061
+            port: 6061
+          failureThreshold: 20
+        startUpProbe:
+          httpGet:
+            path: /readyz
+            port: 6061
+            port: 6061
+          failureThreshold: 6061
+
+ingress:
+  main:
+    enabled: true
+    class: traefik
+    rules:
+      - host: '{{ .Values.shortcuts.hostname }}'
+        http:
+          paths:
+            - backend:
+                service:
+                  name: '{{ include "chart.fullname" $ }}-main'
+                  port:
+                    number: 6061
+              path: /
+              pathType: Prefix
+    tls:
+      - hosts:
+          - '{{ .Values.shortcuts.hostname }}'
+        secretName: '{{ .Values.shortcuts.hostname }}'
+
+services:
+  main:
+    enabled: true
+    type: ClusterIP
+    ports:
+      penpot:
+        port: 6061
+        targetPort: 6061
+        protocol: TCP
+
+config:
+  env:
+    main:
+      enabled: true
+      sensitive: false
+      remove: []
+      data:
+        DOMAIN: '{{ .Values.shortcuts.hostname }}'
