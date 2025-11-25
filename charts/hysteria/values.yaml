@@ -1,0 +1,70 @@
+---
+shortcuts:
+  hostname: hysteria.company
+base:
+  workload:
+    kind: Deployment
+    strategy:
+      type: RollingUpdate
+    containers:
+      hysteria:
+        image:
+          registry: registry.hub.docker.com
+          repository: tobyxdd/hysteria
+          tag:
+          pullPolicy: Always
+        ports:
+          hysteria: 
+            - http
+            - https
+        args: 
+          - server
+          - -c
+          - /app/config.yaml
+        volumeMounts:
+          files:
+            config:
+              path: /app/config.yaml
+              subPath: config.yaml
+        livenessProbe:
+          httpGet:
+            path: /traffic
+            port: 9999
+            scheme: HTTPS
+          failureThreshold: 20
+        readinessProbe:
+          httpGet:
+            path: /traffic
+            port: 9999
+          failureThreshold: 20
+        startUpProbe:
+          httpGet:
+            path: /traffic
+            port: 9999
+            scheme: HTTPS
+          failureThreshold: 80
+
+services:
+  hysteria:
+    enabled: true
+    type: ClusterIP
+    ports:
+      https:
+        port: 443
+        targetPort: 443
+        protocol: TCP
+      http:
+        port: 80
+        targetPort: 80
+        protocol: TCP
+config:
+  files:
+    config:
+      enabled: true
+      sensitive: false
+      remove: []
+      entries:
+        config.yaml:
+          convertTo: yaml
+          data:
+            test: test
