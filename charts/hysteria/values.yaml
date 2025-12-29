@@ -15,7 +15,6 @@ base:
           pullPolicy: Always
         ports:
           hysteria: 
-            - http
             - https
         args: 
           - server
@@ -30,7 +29,6 @@ base:
           httpGet:
             path: /traffic
             port: 9999
-            scheme: HTTPS
           failureThreshold: 20
         readinessProbe:
           httpGet:
@@ -50,13 +48,9 @@ services:
     type: ClusterIP
     ports:
       https:
-        port: 443
-        targetPort: 443
-        protocol: TCP
-      http:
-        port: 80
-        targetPort: 80
-        protocol: TCP
+        port: 8443
+        targetPort: 8443
+        protocol: UDP
 config:
   files:
     config:
