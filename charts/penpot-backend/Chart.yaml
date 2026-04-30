@@ -4,8 +4,8 @@ name: penpot-backend
 description: |-
   Penpot: The open-source design tool for design and code collaboration
 type: application
-version: 0.1.0
-appVersion: 2.11.1
+version: 0.2.0
+appVersion: 2.14.4
 maintainers:
   - name: allanger
     email: allanger@zohomail.com
