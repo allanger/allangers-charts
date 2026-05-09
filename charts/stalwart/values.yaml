@@ -29,15 +29,12 @@ base:
             - sieve
         args:
           - --config
-          - /app/config.toml
+          - /app/config.json
         volumeMounts:
-          storage:
-            data:
-              path: /opt/stalwart
           files:
             config:
-              path: /app/config.toml
-              subPath: config.toml
+              path: /app/config.json
+              subPath: config.json
         livenessProbe:
           tcpSocket:
             port: 25
@@ -55,7 +52,7 @@ ingress:
     annotations: {}
     class: traefik
     rules:
-      - host: '{{ .Values.shortcuts.hostname }}'
+      - host: "{{ .Values.shortcuts.hostname }}"
         http:
           paths:
             - backend:
@@ -67,8 +64,8 @@ ingress:
               pathType: Prefix
     tls:
       - hosts:
-          - '{{ .Values.shortcuts.hostname }}'
-        secretName: '{{ .Values.shortcuts.hostname }}'
+          - "{{ .Values.shortcuts.hostname }}"
+        secretName: "{{ .Values.shortcuts.hostname }}"
 
 services:
   web:
@@ -119,13 +116,6 @@ services:
         port: 4190
         targetPort: 4190
         protocol: TCP
-storage:
-  data:
-    enabled: true
-    storageClassName: default
-    size: 1Gi
-    accessModes:
-      - ReadWriteOnce
 
 config:
   files:
@@ -134,83 +124,6 @@ config:
       sensitive: false
       remove: []
       entries:
-        # Ref: https://github.com/stalwartlabs/mail-server/blob/main/resources/config/config.toml
-        config.toml:
-          data: |
-            [server.listener."smtp"]
-            bind = ["[::]:25"]
-            protocol = "smtp"
-            
-            [server.listener."submission"]
-            bind = ["[::]:587"]
-            protocol = "smtp"
-            
-            [server.listener."submissions"]
-            bind = ["[::]:465"]
-            protocol = "smtp"
-            tls.implicit = true
-            
-            [server.listener."imap"]
-            bind = ["[::]:143"]
-            protocol = "imap"
-            
-            [server.listener."imaptls"]
-            bind = ["[::]:993"]
-            protocol = "imap"
-            tls.implicit = true
-            
-            [server.listener.pop3]
-            bind = "[::]:110"
-            protocol = "pop3"
-            
-            [server.listener.pop3s]
-            bind = "[::]:995"
-            protocol = "pop3"
-            tls.implicit = true
-            
-            [server.listener."sieve"]
-            bind = ["[::]:4190"]
-            protocol = "managesieve"
-            
-            [server.listener."https"]
-            protocol = "http"
-            bind = ["[::]:443"]
-            tls.implicit = false
-            
-            [storage]
-            data = "rocksdb"
-            fts = "rocksdb"
-            blob = "rocksdb"
-            lookup = "rocksdb"
-            directory = "internal"
-            
-            [store."rocksdb"]
-            type = "rocksdb"
-            path = "/app/data/data/"
-            compression = "lz4"
-            
-            [directory."internal"]
-            type = "internal"
-            store = "rocksdb"
-            
-            [tracer."stdout"]
-            type = "stdout"
-            level = "info"
-            ansi = false
-            enable = true
-            
-            #[server.run-as]
-            #user = "stalwart-mail"
-            #group = "stalwart-mail"
-            
-            [authentication.fallback-admin]
-            user = "admin"
-            secret = 'R@ndomToken$tring'
-            # SSL/TLS Certificate from a local file
-            #[certificate."default"]
-            #cert = "%{file:/app/certs/}%"
-  
-            # Dynamic hostname using another configuration setting
-            [lookup.default]
-            domain = "badhouseplants.net"
-            hostname = "stalwart.%{cfg:lookup.default.domain}%"
+        config.json:
+          convertTo: json
+          data: {}
