@@ -7,6 +7,13 @@ base:
     kind: Deployment
     strategy:
       type: RollingUpdate
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 2000
+      runAsGroup: 2000
+      fsGroup: 2000
+      seccompProfile:
+        type: RuntimeDefault
     containers:
       stalwart:
         image:
@@ -35,18 +42,35 @@ base:
             config:
               path: /app/config.json
               subPath: config.json
+          extraVolumes:
+            tmp:
+              path: /tmp
         livenessProbe:
           httpGet:
             path: /healthz/live
-            port: http
+            port: 8080
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /healthz/ready
-            port: http
+            port: 8080
           initialDelaySeconds: 5
           periodSeconds: 10
+
+        securityContext:
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: [ALL]
+            add: [NET_BIND_SERVICE]
+          seccompProfile:
+            type: RuntimeDefault
+
+extraVolumes:
+  tmp:
+    emptyDir: {}
 
 ingress:
   main:
