@@ -36,15 +36,17 @@ base:
               path: /app/config.json
               subPath: config.json
         livenessProbe:
-          tcpSocket:
-            port: 25
-          initialDelaySeconds: 3
-          periodSeconds: 3
+          httpGet:
+            path: /healthz/live
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
         readinessProbe:
-          tcpSocket:
-            port: 25
-          initialDelaySeconds: 3
-          periodSeconds: 3
+          httpGet:
+            path: /healthz/ready
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
 
 ingress:
   main:
