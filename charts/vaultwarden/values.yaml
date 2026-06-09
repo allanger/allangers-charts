@@ -13,12 +13,12 @@ base:
     containers:
       vaultwarden:
         image:
-          registry: registry.hub.docker.com
-          repository: vaultwarden/server
+          registry: ghcr.io
+          repository: dani-garcia/vaultwarden
           tag:
           pullPolicy: Always
         ports:
-          main: 
+          main:
             - vaultwarden
         volumeMounts:
           storage:
@@ -48,7 +48,7 @@ ingress:
     enabled: true
     class: traefik
     rules:
-      - host: '{{ .Values.shortcuts.hostname }}'
+      - host: "{{ .Values.shortcuts.hostname }}"
         http:
           paths:
             - backend:
@@ -60,10 +60,10 @@ ingress:
               pathType: Prefix
     tls:
       - hosts:
-          - '{{ .Values.shortcuts.hostname }}'
-        secretName: '{{ .Values.shortcuts.hostname }}'
+          - "{{ .Values.shortcuts.hostname }}"
+        secretName: "{{ .Values.shortcuts.hostname }}"
 extraVolumes:
-  logs: 
+  logs:
     emptyDir: {}
 services:
   main:
@@ -97,7 +97,7 @@ config:
       sensitive: false
       remove: []
       data:
-        DOMAIN: '{{ .Values.shortcuts.hostname }}'
+        DOMAIN: "{{ .Values.shortcuts.hostname }}"
         SMTP_HOST: ~
         SMTP_SECURITY: startls
         SMTP_PORT: 587
@@ -105,30 +105,30 @@ config:
         SMTP_FROM: vaultwarden@softplayer.net
         SMTP_FROM_NAME: Soft Player
         SMTP_DEBUG: false
-        SMTP_ACCEPT_INVALID_HOSTNAMES: 'false'
-        SMTP_ACCEPT_INVALID_CERTS: 'false'
-        SMTP_USERNAME: ''
+        SMTP_ACCEPT_INVALID_HOSTNAMES: "false"
+        SMTP_ACCEPT_INVALID_CERTS: "false"
+        SMTP_USERNAME: ""
         DATA_FOLDER: /app/data/
-        ROCKET_PORT: '{{ .Values.shortcuts.rocketPort }}'
-        SHOW_PASSWORD_HINT: 'true'
-        SIGNUPS_ALLOWED: 'false'
-        INVITATIONS_ALLOWED: 'true'
+        ROCKET_PORT: "{{ .Values.shortcuts.rocketPort }}"
+        SHOW_PASSWORD_HINT: "true"
+        SIGNUPS_ALLOWED: "false"
+        INVITATIONS_ALLOWED: "true"
         SIGNUPS_DOMAINS_WHITELIST: "*"
-        SIGNUPS_VERIFY: 'true'
-        WEB_VAULT_ENABLED: 'true'
+        SIGNUPS_VERIFY: "true"
+        WEB_VAULT_ENABLED: "true"
         LOG_FILE: /app/logs
         LOG_LEVEL: info
-        DB_CONNECTION_RETRIES: '10'
-        DATABASE_MAX_CONNS: '10'
-        ORG_GROUPS_ENABLED: 'true'
-        ORG_EVENTS_ENABLED: 'true'
+        DB_CONNECTION_RETRIES: "10"
+        DATABASE_MAX_CONNS: "10"
+        ORG_GROUPS_ENABLED: "true"
+        ORG_EVENTS_ENABLED: "true"
         ORG_CREATION_USERS: ""
-  
+
     secrets:
       enabled: true
       sensitive: true
       remove: []
       data:
         ADMIN_TOKEN: "R@ndomToken$tring"
-        DATABASE_URL: ''
-        SMTP_PASSWORD: ''
+        DATABASE_URL: ""
+        SMTP_PASSWORD: ""
