@@ -1,155 +1,21 @@
----
-shortcuts:
-  hostname: stalwart.company
-
-base:
-  workload:
-    kind: Deployment
-    strategy:
-      type: RollingUpdate
-    securityContext:
-      runAsNonRoot: true
-      runAsUser: 2000
-      runAsGroup: 2000
-      fsGroup: 2000
-      seccompProfile:
-        type: RuntimeDefault
-    containers:
-      stalwart:
-        image:
-          registry: registry.hub.docker.com
-          repository: stalwartlabs/stalwart
-          tag:
-          pullPolicy: Always
-        ports:
-          web:
-            - https
-            - http
-          mail:
-            - smtp
-            - smtps
-            - smtp-startls
-            - imap
-            - imaptls
-            - pop3
-            - pop3s
-            - sieve
-        args:
-          - --config
-          - /app/config.json
-        volumeMounts:
-          files:
-            config:
-              path: /app/config.json
-              subPath: config.json
-          extraVolumes:
-            tmp:
-              path: /tmp
-        livenessProbe:
-          httpGet:
-            path: /healthz/live
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /healthz/ready
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 10
-
-        securityContext:
-          runAsNonRoot: true
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop: [ALL]
-            add: [NET_BIND_SERVICE]
-          seccompProfile:
-            type: RuntimeDefault
-
-extraVolumes:
-  tmp:
-    emptyDir: {}
-
-ingress:
-  main:
-    enabled: true
-    annotations: {}
-    class: traefik
-    rules:
-      - host: "{{ .Values.shortcuts.hostname }}"
-        http:
-          paths:
-            - backend:
-                service:
-                  name: '{{ include "chart.fullname" $ }}-web'
-                  port:
-                    number: 8080
-              path: /
-              pathType: Prefix
-    tls:
-      - hosts:
-          - "{{ .Values.shortcuts.hostname }}"
-        secretName: "{{ .Values.shortcuts.hostname }}"
-
-services:
-  web:
-    enabled: true
-    type: ClusterIP
-    ports:
-      https:
-        port: 443
-        targetPort: 443
-        protocol: TCP
-      http:
-        port: 8080
-        targetPort: 8080
-        protocol: TCP
-  mail:
-    enabled: true
-    type: ClusterIP
-    ports:
-      smtp:
-        port: 25
-        targetPort: 25
-        protocol: TCP
-      smtps:
-        port: 465
-        targetPort: 465
-        protocol: TCP
-      smtp-startls:
-        port: 587
-        targetPort: 587
-        protocol: TCP
-      imap:
-        port: 143
-        targetPort: 143
-        protocol: TCP
-      imaptls:
-        port: 993
-        targetPort: 993
-        protocol: TCP
-      pop3:
-        port: 110
-        targetPort: 110
-        protocol: TCP
-      pop3s:
-        port: 995
-        targetPort: 995
-        protocol: TCP
-      sieve:
-        port: 4190
-        targetPort: 4190
-        protocol: TCP
+image:
+  registry: docker.io
+  repository: stalwartlabs/stalwart
+  tag:
+  pullPolicy: Always
 
 config:
-  files:
-    config:
-      enabled: false
-      sensitive: false
-      remove: []
-      entries:
-        config.json:
-          convertTo: json
-          data: {}
+  datastore: {}
+  recoveryAdmin:
+    username: admin
+    password: qwertyu9
+
+extra:
+  database:
+    enabled: true
+    instance:
+      name: ~
+      # -- Either mysql or postgres
+      type: ~
+    deletionProtected: true
+    useTLS: false

@@ -1,0 +1,28 @@
+{{- if .Values.extra.database.enabled }}
+apiVersion: kinda.rocks/v1beta1
+kind: Database
+metadata:
+  name: {{ include "common.name" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+spec:
+  backup:
+    cron: 0 0 * * *
+    enable: false
+  credentials:
+    templates:
+    - name: config.yaml
+      secret: true
+      template: |-
+        useTls: {{ .Values.extra.database.useTLS | toString | quote }}
+        host: {{ `{{ .Hostname }}` }}
+        port: {{ `{{ .Port }}` }}
+        database: {{ `{{ .Database }}` }}
+        authUsername: {{ `{{ .Username }}` }}
+        authSecret:
+          value: {{ `{{ .Password }}` }}
+  deletionProtected: {{ .Values.extra.database.deletionProtected }}
+  instance: {{ .Values.extra.database.instance.name }}
+  postgres: {}
+  secretName: {{ include "common.name" . }}-datastore
+{{- end }}

@@ -1,0 +1,24 @@
+---
+suite: Test database template
+templates:
+  - ./extra/database.yaml
+tests:
+  - it: Verifies that database is not deployed when not enabled
+    set:
+      extra:
+        database:
+          enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: Creates a database
+    set:
+      extra:
+        database:
+          enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Database

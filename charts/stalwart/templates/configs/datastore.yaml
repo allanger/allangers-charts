@@ -1,0 +1,15 @@
+{{/* 
+  The main config file that is needed for bootstrapping 
+  Can either be configured manually, or using the db-operator
+  */}}
+{{- if not .Values.extra.dbOperator }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "common.name" . }}-datastore
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+data:
+  config.yaml: |-
+    {{ .Values.config.datastore | toYaml | b64enc }}
+{{- end }}

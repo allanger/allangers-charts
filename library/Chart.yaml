@@ -1,0 +1,7 @@
+apiVersion: v2
+name: library
+description: A Helm library with reused components
+type: library
+version: 0.1.0
+maintainers:
+  - name: DevOps
