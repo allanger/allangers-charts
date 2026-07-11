@@ -1,8 +1,10 @@
+{{- if .Values.config.bootstrap }}
 apiVersion: v1
 kind: Secret
 metadata:
-  name: {{ include "common.name" . }}
+  name: {{ include "common.name" . }}-admin-credentials
   labels:
     {{- include "common.labels" . | nindent 4 }}
 data:
   recovery_admin: {{ include "stalwart.admin" . }}
+{{- end }}

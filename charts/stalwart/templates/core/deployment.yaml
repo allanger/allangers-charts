@@ -12,41 +12,43 @@ spec:
     type: RollingUpdate
   selector:
     matchLabels:
-      {{- include "common.selectorLabels" . | nindent 4 }}
+      {{- include "common.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "common.labels" . | nindent 4 }}
+        {{- include "common.labels" . | nindent 8 }}
     spec:
+      {{- if .Values.config.bootstrap }}
       initContainers:
         - name: stalwart-bootstrap
+          imagePullPolicy: '{{ .Values.image.pullPolicy }}'
+          image: ubuntu
+          command:
+            - bash
+          args:
+            - -c
+            - "apt-get update && apt-get install -y curl xz-utils && curl --proto '=https' --tlsv1.2 -LsSf https://github.com/stalwartlabs/cli/releases/latest/download/stalwart-cli-installer.sh | sh"
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      {{- end }}
+      containers:
+        - name: stalwart
+          args:
+          - --config 
+          - /opt/stalwart/config.yaml
+          imagePullPolicy: '{{ .Values.image.pullPolicy }}'
+          image: {{ include "image.bootstrap" (dict "ctx" . "image" .Values.image) }}
+          {{- if .Values.config.bootstrap }}
           env: 
             - name: STALWART_RECOVERY_MODE
               value: "true"
             - name: STALWART_RECOVERY_ADMIN
               valueFrom:
                 secretKeyRef:
-                  key: STALWART_RECOVERY_ADMIN
+                  key: recovery_admin
                   name: {{ include "common.name" . }}-admin-credentials
-          volumeMounts:
-            - name: datastore
-              mountPath: /opt/stalwart/config.yaml
-              subPath: config.yaml
-              readOnly: true
-          imagePullPolicy: '{{ .Values.image.pullPolicy }}'
-          image: {{ include "image.bootstrap" (dict "ctx" . "image" .Values.image) }}
-          resources:
-            requests:
-              cpu: 100m
-              memory: 128Mi
-            limits:
-              memory: 128Mi
-      containers:
-        - name: stalwart
-          command:
-          - /usr/sbinx/configure_gitea.sh
-          imagePullPolicy: '{{ .Values.image.pullPolicy }}'
-          image: {{ include "image.bootstrap" (dict "ctx" . "image" .Values.image) }}
+          {{- end }}
           resources:
             requests:
               cpu: 100m
@@ -67,3 +69,5 @@ spec:
         secret:
           defaultMode: 420
           secretName: {{ include "common.name" . }}-datastore
+      - name: tmp
+        emptyDir: {}

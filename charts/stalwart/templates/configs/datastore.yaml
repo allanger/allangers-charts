@@ -2,7 +2,7 @@
   The main config file that is needed for bootstrapping 
   Can either be configured manually, or using the db-operator
   */}}
-{{- if not .Values.extra.dbOperator }}
+{{- if not .Values.extra.database.enabled }}
 apiVersion: v1
 kind: Secret
 metadata:
