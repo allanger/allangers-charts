@@ -1,0 +1,87 @@
+---
+shortcuts:
+  hostname: vikunja.company
+
+base:
+  workload:
+    kind: Deployment
+    strategy:
+      type: RollingUpdate
+    containers:
+      vikunja:
+        image:
+          registry: docker.io
+          repository: vikunja/vikunja
+          tag:
+          pullPolicy: Always
+        ports:
+          main:
+            - vikunja
+        volumeMounts: {}
+        envFrom:
+          main: {}
+          secrets: {}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3456
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 2
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3456
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 2
+
+ingress:
+  main:
+    enabled: true
+    class: traefik
+    rules:
+      - host: "{{ .Values.shortcuts.hostname }}"
+        http:
+          paths:
+            - backend:
+                service:
+                  name: '{{ include "chart.fullname" $ }}-main'
+                  port:
+                    number: 3456
+              path: /
+              pathType: Prefix
+    tls:
+      - hosts:
+          - "{{ .Values.shortcuts.hostname }}"
+        secretName: "{{ .Values.shortcuts.hostname }}"
+
+services:
+  main:
+    enabled: true
+    type: ClusterIP
+    ports:
+      vikunja:
+        port: 3456
+        targetPort: 3456
+        protocol: TCP
+
+storage: {}
+config:
+  # -- Please have a look here: https://github.com/dani-garcia/vaultwarden/blob/main/.env.template
+  env:
+    main:
+      enabled: true
+      sensitive: false
+      remove: []
+      data:
+        VIKUNJA_SERVICE_PUBLICURL: "https://{{ .Values.shortcuts.hostname }}"
+
+    secrets:
+      enabled: true
+      sensitive: true
+      remove: []
+      data:
+        VIKUNJA_SERVICE_SECRET: "R@ndomToken$tring"
