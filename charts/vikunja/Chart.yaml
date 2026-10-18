@@ -2,8 +2,8 @@ apiVersion: v2
 name: vikunja
 description: The to-do app to organize your life.
 type: application
-version: 0.1.0
-appVersion: 2.6.0
+version: 0.2.0
+appVersion: 2.7.0
 maintainers:
   - name: allanger
     email: allanger@posteo.com

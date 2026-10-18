@@ -1,9 +1,9 @@
 apiVersion: v2
 name: memos
-description: An open-source, lightweight note-taking solution. The pain-less way to create your meaningful notes. Your Notes, Your Way. 
+description: An open-source, lightweight note-taking solution. The pain-less way to create your meaningful notes. Your Notes, Your Way.
 type: application
-version: 0.11.0
-appVersion: 0.30.0
+version: 0.12.0
+appVersion: 0.31.0
 maintainers:
   - name: allanger
     email: allanger@zohomail.com
