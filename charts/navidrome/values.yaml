@@ -43,7 +43,7 @@ base:
         image:
           registry: registry.hub.docker.com
           repository: rclone/rclone
-          tag: 1.75
+          tag: 1.76
           pullPolicy: Always
         volumeMounts:
           storage:
